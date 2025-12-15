@@ -40,25 +40,68 @@ class _ProgressCardState extends State<ProgressCard>
 
   @override
   Widget build(BuildContext context) {
+    final percentage = (widget.course.progress * 100).toInt();
+
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.white.withValues(alpha: 0.85)],
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.course.courseName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          /// ─── HEADER ROW ───
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blueAccent.withValues(alpha: 0.12),
+                ),
+                child: const Icon(
+                  Icons.book_rounded,
+                  color: Colors.blueAccent,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  widget.course.courseName,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              AnimatedBuilder(
+                animation: _progressAnim,
+                builder: (_, __) => Text(
+                  "${(_progressAnim.value * 100).toInt()}%",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 14),
 
-          /// 🔥 Animated Progress
+          const SizedBox(height: 16),
+
+          /// ─── PROGRESS BAR ───
           AnimatedBuilder(
             animation: _progressAnim,
             builder: (_, __) {
@@ -66,7 +109,7 @@ class _ProgressCardState extends State<ProgressCard>
                 borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(
                   value: _progressAnim.value,
-                  minHeight: 8,
+                  minHeight: 9,
                   backgroundColor: Colors.grey.shade200,
                   color: Colors.blueAccent,
                 ),
@@ -74,9 +117,11 @@ class _ProgressCardState extends State<ProgressCard>
             },
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+
+          /// ─── FOOTER TEXT ───
           Text(
-            "${widget.course.completedLessons}/${widget.course.totalLessons} lessons completed",
+            "${widget.course.completedLessons} of ${widget.course.totalLessons} lessons completed",
             style: const TextStyle(color: Colors.grey, fontSize: 13),
           ),
         ],
