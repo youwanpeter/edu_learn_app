@@ -37,8 +37,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool canEdit =
-        widget.userRole == 'admin' || widget.userRole == 'lecturer';
+    bool canEdit = widget.userRole == 'lecturer';
 
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
