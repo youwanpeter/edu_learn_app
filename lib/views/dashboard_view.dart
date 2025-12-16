@@ -25,84 +25,84 @@ class DashboardView extends StatelessWidget {
             child: vm.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  /// ---- Courses Section ----
-                  const Text(
-                    "Your Courses",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  if (vm.progressList.isEmpty)
-                    const Text(
-                      "No progress data available",
-                      style: TextStyle(color: Colors.grey),
-                    )
-                  else
-                    ...vm.progressList.map(
-                          (course) => Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: ProgressCard(course: course),
-                      ),
-                    ),
-
-                  const SizedBox(height: 28),
-
-                  /// ---- Analytics Section ----
-                  const Text(
-                    "Weekly Analytics",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  /// Chart
-                  Container(
-                    height: 220,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 255, 0, 0),
-                          Color.fromARGB(255, 138, 4, 4),
-                        ],
-                      ),
-                    ),
-                    child: const AnalyticsChart(),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// ---- Stats ----
-                  if (vm.analytics != null)
-                    Row(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _StatTile(
-                          icon: Icons.book_rounded,
-                          label: "Lessons",
-                          value: vm.analytics!.lessonsCompleted
-                              .toString(),
+                        /// ---- Courses Section ----
+                        const Text(
+                          "Your Courses",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        _StatTile(
-                          icon: Icons.star_rounded,
-                          label: "Quiz Avg",
-                          value: "${vm.analytics!.averageQuizScore}%",
+                        const SizedBox(height: 12),
+
+                        if (vm.progressList.isEmpty)
+                          const Text(
+                            "No progress data available",
+                            style: TextStyle(color: Colors.grey),
+                          )
+                        else
+                          ...vm.progressList.map(
+                            (course) => Padding(
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: ProgressCard(course: course),
+                            ),
+                          ),
+
+                        const SizedBox(height: 28),
+
+                        /// ---- Analytics Section ----
+                        const Text(
+                          "Weekly Analytics",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
+                        const SizedBox(height: 16),
+
+                        /// Chart
+                        Container(
+                          height: 220,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color.fromARGB(255, 255, 0, 0),
+                                Color.fromARGB(255, 138, 4, 4),
+                              ],
+                            ),
+                          ),
+                          child: const AnalyticsChart(),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        /// ---- Stats ----
+                        if (vm.analytics != null)
+                          Row(
+                            children: [
+                              _StatTile(
+                                icon: Icons.book_rounded,
+                                label: "Lessons",
+                                value: vm.analytics!.lessonsCompleted
+                                    .toString(),
+                              ),
+                              const SizedBox(width: 12),
+                              _StatTile(
+                                icon: Icons.star_rounded,
+                                label: "Quiz Avg",
+                                value: "${vm.analytics!.averageQuizScore}%",
+                              ),
+                            ],
+                          ),
                       ],
                     ),
-                ],
-              ),
-            ),
+                  ),
           ),
 
           /// ===== FOOTER =====
