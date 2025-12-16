@@ -52,7 +52,19 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(255, 255, 0, 0),
+                Color.fromARGB(255, 138, 4, 4),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
           "Lesson Resources",
@@ -116,13 +128,13 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                 Row(
                   children: [
                     SizedBox(
-                      width: w * 0.3,
+                      width: w * 0.6,
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: "Search by title",
-                          prefixIcon: const Icon(Icons.search),
+                          prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
                           contentPadding: EdgeInsets.symmetric(
-                            vertical: h * 0.018,
+                            vertical: h * 0.025,
                             horizontal: w * 0.04,
                           ),
                           border: OutlineInputBorder(
@@ -216,6 +228,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                                       ? Icons.picture_as_pdf
                                       : Icons.play_circle,
                                   size: w * 0.08,
+                                  color: Colors.blueAccent,
                                 ),
                                 SizedBox(width: w * 0.04),
                                 Expanded(
@@ -249,14 +262,14 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                                   Row(
                                     children: [
                                       IconButton(
-                                        icon: Icon(Icons.edit, size: w * 0.06),
+                                        icon: Icon(Icons.edit, size: w * 0.06, color: Colors.blueAccent),
                                         onPressed: () {
                                           _openMaterialForm(context, material);
                                         },
                                       ),
                                       IconButton(
                                         icon:
-                                            Icon(Icons.delete, size: w * 0.06),
+                                            Icon(Icons.delete, size: w * 0.06, color: Colors.blueAccent),
                                         onPressed: () {
                                           _confirmDelete(context, material);
                                         },
@@ -265,7 +278,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                                   )
                                 else
                                   IconButton(
-                                    icon: Icon(Icons.download, size: w * 0.06),
+                                    icon: Icon(Icons.download, size: w * 0.06, color: Colors.blueAccent),
                                     onPressed: () {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -315,7 +328,9 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(material == null ? "Add Material" : "Edit Material"),
+              title: Text(material == null ? "Add Material" : "Edit Material",
+              style: TextStyle(color: Colors.blue.shade900),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
