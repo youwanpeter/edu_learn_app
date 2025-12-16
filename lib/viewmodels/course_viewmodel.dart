@@ -18,6 +18,7 @@ class CourseViewModel extends ChangeNotifier {
 
   Future<void> loadCourses(User user) async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
@@ -25,7 +26,7 @@ class CourseViewModel extends ChangeNotifier {
         _courses = await _service.fetchEnrolledCourses(user.id);
       } else if (user.isStaff) {
         _courses = await _service.fetchCoursesByInstructor(user.id);
-      } else {
+      } else if (user.isAdmin) {
         _courses = await _service.fetchCourses();
       }
     } catch (e) {
@@ -40,11 +41,8 @@ class CourseViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
-
     try {
-      final allCourses = await _service.fetchCourses();
-      _selectedCourse = allCourses.firstWhere((course) => course.id == courseId);
+      _selectedCourse = await _service.fetchCourseById(courseId);
     } catch (e) {
       _error = 'Failed to load course: $e';
     } finally {
@@ -53,31 +51,30 @@ class CourseViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addCourse(Course course) async {
+  Future<bool> addCourse(Course course) async {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 1));
-
     try {
+      await _service.addCourse(course);
       _courses.add(course);
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to add course: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> updateCourse(Course course) async {
+  Future<bool> updateCourse(Course course) async {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 1));
-
     try {
+      await _service.updateCourse(course);
       final index = _courses.indexWhere((c) => c.id == course.id);
       if (index != -1) {
         _courses[index] = course;
@@ -86,71 +83,58 @@ class CourseViewModel extends ChangeNotifier {
         _selectedCourse = course;
       }
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to update course: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> deleteCourse(String courseId) async {
+  Future<bool> deleteCourse(String courseId) async {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 1));
-
     try {
+      await _service.deleteCourse(courseId);
       _courses.removeWhere((course) => course.id == courseId);
       if (_selectedCourse?.id == courseId) {
         _selectedCourse = null;
       }
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to delete course: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> enrollStudent(String courseId, String studentId) async {
+  Future<bool> enrollStudent(String courseId, String studentId) async {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 1));
-
     try {
-      // Mock enrollment logic
-      final index = _courses.indexWhere((course) => course.id == courseId);
-      if (index != -1) {
-        final course = _courses[index];
-        if (!course.enrolledStudents.contains(studentId)) {
-          final updatedCourse = Course(
-            id: course.id,
-            title: course.title,
-            description: course.description,
-            category: course.category,
-            instructorId: course.instructorId,
-            instructorName: course.instructorName,
-            enrolledStudents: [...course.enrolledStudents, studentId],
-            totalLessons: course.totalLessons,
-            isActive: course.isActive,
-            createdAt: course.createdAt,
-            progress: course.progress,
-          );
-          _courses[index] = updatedCourse;
+      await _service.enrollStudent(courseId, studentId);
+      final course = await _service.fetchCourseById(courseId);
+      if (course != null) {
+        final index = _courses.indexWhere((c) => c.id == courseId);
+        if (index != -1) {
+          _courses[index] = course;
         }
       }
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to enroll: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 

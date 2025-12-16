@@ -22,9 +22,7 @@ class LessonViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lessonMaps = await _service.fetchLessonsByCourse(courseId);
-      _lessons = lessonMaps.map((map) => Lesson.fromMap(map)).toList();
-      _lessons.sort((a, b) => a.order.compareTo(b.order));
+      _lessons = await _service.fetchLessonsByCourse(courseId);
     } catch (e) {
       _error = 'Failed to load lessons: $e';
     } finally {
@@ -38,8 +36,7 @@ class LessonViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final lessonMap = await _service.fetchLessonById(lessonId);
-      _selectedLesson = Lesson.fromMap(lessonMap);
+      _selectedLesson = await _service.fetchLessonById(lessonId);
     } catch (e) {
       _error = 'Failed to load lesson: $e';
     } finally {
@@ -48,30 +45,31 @@ class LessonViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addLesson(Lesson lesson) async {
+  Future<bool> addLesson(Lesson lesson) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _service.addLesson(lesson.toMap());
+      await _service.addLesson(lesson);
       _lessons.add(lesson);
       _lessons.sort((a, b) => a.order.compareTo(b.order));
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to add lesson: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> updateLesson(Lesson lesson) async {
+  Future<bool> updateLesson(Lesson lesson) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _service.updateLesson(lesson.toMap());
+      await _service.updateLesson(lesson);
       final index = _lessons.indexWhere((l) => l.id == lesson.id);
       if (index != -1) {
         _lessons[index] = lesson;
@@ -81,16 +79,17 @@ class LessonViewModel extends ChangeNotifier {
       }
       _lessons.sort((a, b) => a.order.compareTo(b.order));
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to update lesson: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> deleteLesson(String lessonId) async {
+  Future<bool> deleteLesson(String lessonId) async {
     _isLoading = true;
     notifyListeners();
 
@@ -101,67 +100,62 @@ class LessonViewModel extends ChangeNotifier {
         _selectedLesson = null;
       }
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to delete lesson: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> markAsCompleted(String lessonId) async {
+  Future<bool> markAsCompleted(String lessonId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       await _service.markAsCompleted(lessonId);
-
-      // Update local state
       final index = _lessons.indexWhere((l) => l.id == lessonId);
       if (index != -1) {
         _lessons[index] = _lessons[index].copyWith(isCompleted: true);
       }
-
       if (_selectedLesson?.id == lessonId) {
         _selectedLesson = _selectedLesson!.copyWith(isCompleted: true);
       }
-
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to mark as completed: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  Future<void> toggleLock(String lessonId) async {
+  Future<bool> toggleLock(String lessonId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       await _service.toggleLock(lessonId);
-
-      // Update local state
       final index = _lessons.indexWhere((l) => l.id == lessonId);
       if (index != -1) {
         final current = _lessons[index];
         _lessons[index] = current.copyWith(isLocked: !current.isLocked);
       }
-
       if (_selectedLesson?.id == lessonId) {
         _selectedLesson = _selectedLesson!.copyWith(isLocked: !_selectedLesson!.isLocked);
       }
-
       notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Failed to toggle lock: $e';
-      rethrow;
+      notifyListeners();
+      return false;
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 

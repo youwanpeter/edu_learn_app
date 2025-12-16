@@ -18,14 +18,48 @@ class Course {
     required this.category,
     required this.instructorId,
     required this.instructorName,
-    required this.enrolledStudents,
-    required this.totalLessons,
-    required this.isActive,
+    this.enrolledStudents = const [],
+    this.totalLessons = 0,
+    this.isActive = true,
     required this.createdAt,
-    this.progress = 0.0, // Make progress optional
+    this.progress = 0.0,
   });
 
-  // Simple copyWith method
+  // Convert to Map for Firebase
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'category': category,
+      'instructorId': instructorId,
+      'instructorName': instructorName,
+      'enrolledStudents': enrolledStudents,
+      'totalLessons': totalLessons,
+      'isActive': isActive,
+      'createdAt': createdAt.toIso8601String(),
+      'progress': progress,
+    };
+  }
+
+  // Create from Map
+  factory Course.fromMap(Map<String, dynamic> map) {
+    return Course(
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      category: map['category'] ?? '',
+      instructorId: map['instructorId'] ?? '',
+      instructorName: map['instructorName'] ?? '',
+      enrolledStudents: List<String>.from(map['enrolledStudents'] ?? []),
+      totalLessons: map['totalLessons'] ?? 0,
+      isActive: map['isActive'] ?? true,
+      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      progress: (map['progress'] ?? 0.0).toDouble(),
+    );
+  }
+
+  // Update copy
   Course copyWith({
     String? id,
     String? title,

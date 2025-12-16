@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/course.dart';
 import '../../models/user.dart';
 import '../../viewmodels/course_viewmodel.dart';
-import '../../models/course.dart'; // ADD THIS LINE
+import 'add_edit_course_view.dart';
+import 'course_detail_view.dart';
 
 class CourseListView extends StatefulWidget {
   final User user;
@@ -28,15 +30,12 @@ class _CourseListViewState extends State<CourseListView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_getTitle()),
-        backgroundColor: const Color.fromARGB(255, 255, 0, 0),
-        foregroundColor: Colors.white,
+        actions: _buildAppBarActions(),
       ),
       body: Consumer<CourseViewModel>(
         builder: (context, viewModel, child) {
-          if (viewModel.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+          if (viewModel.isLoading && viewModel.courses.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (viewModel.error != null) {
@@ -48,6 +47,7 @@ class _CourseListViewState extends State<CourseListView> {
                   const SizedBox(height: 16),
                   Text(
                     'Error: ${viewModel.error}',
+                    textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -69,23 +69,19 @@ class _CourseListViewState extends State<CourseListView> {
                   const SizedBox(height: 16),
                   Text(
                     _getEmptyMessage(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _getEmptySubMessage(),
+                    textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.grey),
                   ),
                   if (widget.user.isStaff || widget.user.isAdmin)
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: Add course
-                        },
+                        onPressed: () => _navigateToAddCourse(),
                         child: const Text('Create Your First Course'),
                       ),
                     ),
@@ -94,13 +90,16 @@ class _CourseListViewState extends State<CourseListView> {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: viewModel.courses.length,
-            itemBuilder: (context, index) {
-              final course = viewModel.courses[index];
-              return _buildCourseCard(course);
-            },
+          return RefreshIndicator(
+            onRefresh: () => viewModel.loadCourses(widget.user),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: viewModel.courses.length,
+              itemBuilder: (context, index) {
+                final course = viewModel.courses[index];
+                return _buildCourseCard(context, course, viewModel);
+              },
+            ),
           );
         },
       ),
@@ -108,7 +107,7 @@ class _CourseListViewState extends State<CourseListView> {
     );
   }
 
-  Widget _buildCourseCard(Course course) {
+  Widget _buildCourseCard(BuildContext context, Course course, CourseViewModel viewModel) {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 16),
@@ -120,6 +119,7 @@ class _CourseListViewState extends State<CourseListView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Row(
               children: [
                 Container(
@@ -128,11 +128,7 @@ class _CourseListViewState extends State<CourseListView> {
                     color: Colors.blue.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.school,
-                    color: Colors.blue,
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.school, color: Colors.blue, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -154,6 +150,7 @@ class _CourseListViewState extends State<CourseListView> {
 
             const SizedBox(height: 12),
 
+            // Category
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -171,6 +168,7 @@ class _CourseListViewState extends State<CourseListView> {
 
             const SizedBox(height: 12),
 
+            // Description
             Text(
               course.description,
               maxLines: 2,
@@ -180,6 +178,7 @@ class _CourseListViewState extends State<CourseListView> {
 
             const SizedBox(height: 16),
 
+            // Footer
             Row(
               children: [
                 _buildInfoItem(Icons.people, '${course.enrolledStudents.length}'),
@@ -203,22 +202,35 @@ class _CourseListViewState extends State<CourseListView> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, size: 20),
-                        onPressed: () {
-                          _showEditDialog(course);
-                        },
+                        onPressed: () => _navigateToEditCourse(course),
                         color: Colors.blue,
+                        tooltip: 'Edit Course',
                       ),
                       if (widget.user.isAdmin)
                         IconButton(
                           icon: const Icon(Icons.delete, size: 20),
-                          onPressed: () {
-                            _showDeleteDialog(course.id);
-                          },
+                          onPressed: () => _deleteCourse(context, course.id, viewModel),
                           color: Colors.red,
+                          tooltip: 'Delete Course',
                         ),
                     ],
                   ),
               ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // View Details Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _navigateToCourseDetail(course.id),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  foregroundColor: Colors.blue,
+                ),
+                child: const Text('View Details'),
+              ),
             ),
           ],
         ),
@@ -239,14 +251,26 @@ class _CourseListViewState extends State<CourseListView> {
     );
   }
 
+  List<Widget> _buildAppBarActions() {
+    if (widget.user.isAdmin) {
+      return [
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: _searchCourses,
+          tooltip: 'Search Courses',
+        ),
+      ];
+    }
+    return [];
+  }
+
   Widget? _buildFloatingActionButton() {
     if (widget.user.isStaff || widget.user.isAdmin) {
       return FloatingActionButton(
-        onPressed: () {
-          _showAddDialog();
-        },
+        onPressed: _navigateToAddCourse,
         backgroundColor: const Color.fromARGB(255, 255, 0, 0),
         child: const Icon(Icons.add, color: Colors.white),
+        tooltip: 'Add New Course',
       );
     }
     return null;
@@ -276,116 +300,184 @@ class _CourseListViewState extends State<CourseListView> {
     return 'Create the first course to begin';
   }
 
-  void _showAddDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Course'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Course Title'),
-              onChanged: (value) {},
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Description'),
-              onChanged: (value) {},
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Category'),
-              onChanged: (value) {},
-            ),
-          ],
+  void _navigateToCourseDetail(String courseId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourseDetailView(
+          courseId: courseId,
+          user: widget.user,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement add course
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Course added successfully')),
-              );
-            },
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
   }
 
-  void _showEditDialog(Course course) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Course'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Course Title',
-                hintText: course.title,
-              ),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Description',
-                hintText: course.description,
-              ),
-            ),
-          ],
+  void _navigateToAddCourse() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditCourseView(
+          user: widget.user,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement update course
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Course updated successfully')),
-              );
-            },
-            child: const Text('Update'),
-          ),
-        ],
       ),
-    );
+    ).then((_) {
+      Provider.of<CourseViewModel>(context, listen: false).loadCourses(widget.user);
+    });
   }
 
-  void _showDeleteDialog(String courseId) {
-    showDialog(
+  void _navigateToEditCourse(Course course) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditCourseView(
+          user: widget.user,
+          course: course,
+        ),
+      ),
+    ).then((_) {
+      Provider.of<CourseViewModel>(context, listen: false).loadCourses(widget.user);
+    });
+  }
+
+  Future<void> _deleteCourse(BuildContext context, String courseId, CourseViewModel viewModel) async {
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Course'),
-        content: const Text('Are you sure you want to delete this course?'),
+        content: const Text('Are you sure you want to delete this course? All lessons will also be deleted.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            onPressed: () {
-              // TODO: Implement delete course
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Course deleted successfully')),
-              );
-            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
+    );
+
+    if (confirmed == true) {
+      final success = await viewModel.deleteCourse(courseId);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Course deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete course: ${viewModel.error}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _searchCourses() {
+    showSearch(
+      context: context,
+      delegate: _CourseSearchDelegate(widget.user),
+    );
+  }
+}
+
+class _CourseSearchDelegate extends SearchDelegate {
+  final User user;
+
+  _CourseSearchDelegate(this.user);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () => query = '',
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, null),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSearchResults(context);
+  }
+
+  Widget _buildSearchResults(BuildContext context) {
+    final viewModel = Provider.of<CourseViewModel>(context, listen: false);
+    final filteredCourses = viewModel.courses.where((course) {
+      return course.title.toLowerCase().contains(query.toLowerCase()) ||
+          course.description.toLowerCase().contains(query.toLowerCase()) ||
+          course.category.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    if (filteredCourses.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.search_off, size: 60, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text(
+              'No courses found',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Try different keywords',
+              style: TextStyle(color: Colors.grey.shade500),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filteredCourses.length,
+      itemBuilder: (context, index) {
+        final course = filteredCourses[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: const Icon(Icons.school, color: Colors.blue),
+            title: Text(course.title),
+            subtitle: Text(course.category),
+            trailing: user.isStudent
+                ? Text('${(course.progress * 100).toInt()}%')
+                : null,
+            onTap: () {
+              close(context, null);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CourseDetailView(
+                    courseId: course.id,
+                    user: user,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

@@ -23,7 +23,39 @@ class Lesson {
     required this.createdAt,
   });
 
-  // Add copyWith method
+  // Convert to Map
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'courseId': courseId,
+      'title': title,
+      'content': content,
+      'videoUrl': videoUrl,
+      'pdfUrl': pdfUrl,
+      'order': order,
+      'isCompleted': isCompleted,
+      'isLocked': isLocked,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  // Create from Map
+  factory Lesson.fromMap(Map<String, dynamic> map) {
+    return Lesson(
+      id: map['id'] ?? '',
+      courseId: map['courseId'] ?? '',
+      title: map['title'] ?? '',
+      content: map['content'] ?? '',
+      videoUrl: map['videoUrl'],
+      pdfUrl: map['pdfUrl'],
+      order: map['order'] ?? 0,
+      isCompleted: map['isCompleted'] ?? false,
+      isLocked: map['isLocked'] ?? false,
+      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+
+  // Update copy
   Lesson copyWith({
     String? id,
     String? courseId,
@@ -48,37 +80,5 @@ class Lesson {
       isLocked: isLocked ?? this.isLocked,
       createdAt: createdAt ?? this.createdAt,
     );
-  }
-
-  // Convert from Map
-  factory Lesson.fromMap(Map<String, dynamic> map) {
-    return Lesson(
-      id: map['id'] ?? '',
-      courseId: map['courseId'] ?? '',
-      title: map['title'] ?? '',
-      content: map['content'] ?? '',
-      videoUrl: map['videoUrl'],
-      pdfUrl: map['pdfUrl'],
-      order: map['order'] ?? 0,
-      isCompleted: map['isCompleted'] ?? false,
-      isLocked: map['isLocked'] ?? false,
-      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
-    );
-  }
-
-  // Convert to Map
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'courseId': courseId,
-      'title': title,
-      'content': content,
-      'videoUrl': videoUrl,
-      'pdfUrl': pdfUrl,
-      'order': order,
-      'isCompleted': isCompleted,
-      'isLocked': isLocked,
-      'createdAt': createdAt.toIso8601String(),
-    };
   }
 }
