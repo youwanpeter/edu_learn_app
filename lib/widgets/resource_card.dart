@@ -41,7 +41,11 @@ class ResourceCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            type == 'pdf' ? Icons.picture_as_pdf : Icons.play_circle,
+            type == 'pdf'
+                ? Icons.picture_as_pdf
+                : type == 'doc'
+                    ? Icons.description
+                    : Icons.play_circle,
             size: w * 0.08,
             color: Colors.blueAccent,
           ),

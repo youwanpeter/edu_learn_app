@@ -152,8 +152,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                           child: Text("PDF"),
                         ),
                         DropdownMenuItem(
-                          value: 'video',
-                          child: Text("Video"),
+                          value: 'doc',
+                          child: Text("Word Document"),
                         ),
                       ],
                       onChanged: (String? value) {
@@ -174,14 +174,11 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                           onPressed: () async {
                             FilePickerResult? result =
                                 await FilePicker.platform.pickFiles(
-                              type: selectedType == 'pdf'
-                                  ? FileType.custom
-                                  : FileType.video,
+                              type: FileType.custom,
                               allowedExtensions:
-                                  selectedType == 'pdf' ? ['pdf'] : null,
+                                  selectedType == 'pdf' ? ['pdf'] : ['doc', 'docx'],
                               withData: true,
                             );
-
                             if (result != null &&
                                 result.files.isNotEmpty) {
                               PlatformFile file = result.files.first;

@@ -32,8 +32,8 @@ class AssignmentViewModel extends ChangeNotifier {
         lessonId: lessonId,
         title: 'Sample Assignment 2',
         description: 'This is the second sample assignment',
-        type: 'video',
-        filePath: 'video_sample.mp4',
+        type: 'doc',
+        filePath: 'intro.docx',
         fileBytes: Uint8List.fromList([0, 1, 2]),
       ),
     ];
