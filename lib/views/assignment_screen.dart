@@ -96,6 +96,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                             ? Icons.picture_as_pdf
                             : Icons.play_circle,
                         size: w * 0.08,
+                        color: Colors.blueAccent,
                       ),
                       SizedBox(width: w * 0.04),
                       Expanded(
@@ -128,13 +129,13 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                         Row(
                           children: [
                             IconButton(
-                              icon: Icon(Icons.edit, size: w * 0.06),
+                              icon: Icon(Icons.edit, size: w * 0.06, color: Colors.blueAccent),
                               onPressed: () {
                                 _openAssignmentForm(context, assignment);
                               },
                             ),
                             IconButton(
-                              icon: Icon(Icons.delete, size: w * 0.06),
+                              icon: Icon(Icons.delete, size: w * 0.06, color: Colors.blueAccent),
                               onPressed: () {
                                 _confirmDelete(context, assignment);
                               },
@@ -143,7 +144,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                         )
                       else
                         IconButton(
-                          icon: Icon(Icons.download, size: w * 0.06),
+                          icon: Icon(Icons.download, size: w * 0.06, color: Colors.blueAccent),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -187,7 +188,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           builder: (BuildContext context, void Function(void Function()) setState) {
             return AlertDialog(
               title: Text(
-                assignment == null ? "Add Assignment" : "Edit Assignment",
+                assignment == null ? "Add Assignment" : "Edit Assignment", 
+                style: TextStyle(color: Colors.blue.shade900),
               ),
               content: SingleChildScrollView(
                 child: Column(

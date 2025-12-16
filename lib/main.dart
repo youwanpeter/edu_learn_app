@@ -21,7 +21,12 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(useMaterial3: true),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blueAccent, 
+          ),
+        ),
         home: const HomeScreen(),
       ),
     );
@@ -35,7 +40,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Mock data for testing
     const lessonId = 'lesson1';
-    const userRole = 'student';
+    const userRole = 'lecturer';
 
     return StudyMaterialScreen(
       lessonId: lessonId,
