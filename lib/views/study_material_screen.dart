@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import '../models/study_materials.dart';
 import '../viewmodels/study_material_viewmodel.dart';
 import 'assignment_screen.dart';
+import '../widgets/resource_card.dart';
 
 class StudyMaterialScreen extends StatefulWidget {
   final String lessonId;
@@ -208,90 +209,25 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                         itemBuilder: (BuildContext context, int index) {
                           StudyMaterial material = filteredMaterials[index];
 
-                          return Container(
-                            margin: EdgeInsets.only(bottom: h * 0.015),
-                            padding: EdgeInsets.all(w * 0.04),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(w * 0.04),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 4,
+                          return ResourceCard(
+                            title: material.title,
+                            description: material.description,
+                            type: material.type,
+                            canEdit: canEdit,
+                            onEdit: () {
+                              _openMaterialForm(context, material);
+                            },
+                            onDelete: () {
+                              _confirmDelete(context, material);
+                            },
+                            onDownload: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("File download not implemented yet"),
+                                  backgroundColor: Colors.green,
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  material.type == 'pdf'
-                                      ? Icons.picture_as_pdf
-                                      : Icons.play_circle,
-                                  size: w * 0.08,
-                                  color: Colors.blueAccent,
-                                ),
-                                SizedBox(width: w * 0.04),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        material.title,
-                                        style: TextStyle(
-                                          fontSize: w * 0.045,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(height: h * 0.005),
-                                      Text(
-                                        material.description,
-                                        style: TextStyle(
-                                          fontSize: w * 0.035,
-                                          color: Colors.grey[700],
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (canEdit)
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit, size: w * 0.06, color: Colors.blueAccent),
-                                        onPressed: () {
-                                          _openMaterialForm(context, material);
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon:
-                                            Icon(Icons.delete, size: w * 0.06, color: Colors.blueAccent),
-                                        onPressed: () {
-                                          _confirmDelete(context, material);
-                                        },
-                                      ),
-                                    ],
-                                  )
-                                else
-                                  IconButton(
-                                    icon: Icon(Icons.download, size: w * 0.06, color: Colors.blueAccent),
-                                    onPressed: () {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              "File download not implemented yet"),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
+                              );
+                            },
                           );
                         },
                       );
@@ -310,6 +246,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
       ),
     );
   }
+
 
   void _openMaterialForm(BuildContext context, StudyMaterial? material) {
     TextEditingController titleController =

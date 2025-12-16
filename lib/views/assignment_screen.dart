@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
-
 import '../models/assignment.dart';
 import '../viewmodels/assignment_viewmodel.dart';
+import '../widgets/resource_card.dart';
 
 class AssignmentScreen extends StatefulWidget {
   final String lessonId;
@@ -76,88 +76,27 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               itemBuilder: (BuildContext context, int index) {
                 Assignment assignment = assignments[index];
 
-                return Container(
-                  margin: EdgeInsets.only(bottom: h * 0.015),
-                  padding: EdgeInsets.all(w * 0.04),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(w * 0.04),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        assignment.type == 'pdf'
-                            ? Icons.picture_as_pdf
-                            : Icons.play_circle,
-                        size: w * 0.08,
-                        color: Colors.blueAccent,
-                      ),
-                      SizedBox(width: w * 0.04),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              assignment.title,
-                              style: TextStyle(
-                                fontSize: w * 0.045,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: h * 0.005),
-                            Text(
-                              assignment.description,
-                              style: TextStyle(
-                                fontSize: w * 0.035,
-                                color: Colors.grey[700],
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                return ResourceCard(
+                  title: assignment.title,
+                  description: assignment.description,
+                  type: assignment.type,
+                  canEdit: canEdit,
+                  onEdit: () {
+                    _openAssignmentForm(context, assignment);
+                  },
+                  onDelete: () {
+                    _confirmDelete(context, assignment);
+                  },
+                  onDownload: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Assignment download not implemented yet",
                         ),
+                        backgroundColor: Colors.green,
                       ),
-                      if (canEdit)
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit, size: w * 0.06, color: Colors.blueAccent),
-                              onPressed: () {
-                                _openAssignmentForm(context, assignment);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete, size: w * 0.06, color: Colors.blueAccent),
-                              onPressed: () {
-                                _confirmDelete(context, assignment);
-                              },
-                            ),
-                          ],
-                        )
-                      else
-                        IconButton(
-                          icon: Icon(Icons.download, size: w * 0.06, color: Colors.blueAccent),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Assignment download not implemented yet",
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             );
