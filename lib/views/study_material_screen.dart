@@ -44,7 +44,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
 
   @override
   Widget build(BuildContext context) {
-    bool canEdit = widget.userRole == 'admin' || widget.userRole == 'lecturer';
+    bool canEdit = widget.userRole == 'lecturer';
 
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
@@ -116,7 +116,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                 Row(
                   children: [
                     SizedBox(
-                      width: w * 0.4,
+                      width: w * 0.3,
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: "Search by title",
@@ -136,7 +136,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                         },
                       ),
                     ),
-                    SizedBox(width: w * 0.08),
+                    SizedBox(width: w * 0.03),
                     DropdownButton<String>(
                       value: _selectFilter,
                       items: const [
