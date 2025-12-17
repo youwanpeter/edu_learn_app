@@ -1,7 +1,7 @@
 import '../models/assignment.dart';
 
 class AssignmentService {
-  static List<Assignment> _assignments = [];
+  static final List<Assignment> _assignments = [];
 
   static List<Assignment> getByLesson(String lessonId) {
     List<Assignment> result = [];

@@ -23,9 +23,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blueAccent, 
-          ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         ),
         home: const HomeScreen(),
       ),
@@ -42,9 +40,6 @@ class HomeScreen extends StatelessWidget {
     const lessonId = 'lesson1';
     const userRole = 'lecturer';
 
-    return StudyMaterialScreen(
-      lessonId: lessonId,
-      userRole: userRole,
-    );
+    return StudyMaterialScreen(lessonId: lessonId, userRole: userRole);
   }
 }

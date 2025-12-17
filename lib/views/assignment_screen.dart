@@ -1,270 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:typed_data';
 import '../models/assignment.dart';
 import '../viewmodels/assignment_viewmodel.dart';
-import '../widgets/resource_card.dart';
 
 class AssignmentScreen extends StatefulWidget {
   final String lessonId;
   final String userRole;
+  final Function(Assignment) onEdit; // Callback for edit
 
   const AssignmentScreen({
     super.key,
     required this.lessonId,
     required this.userRole,
+    required this.onEdit,
   });
 
   @override
-  State<AssignmentScreen> createState() {
-    return _AssignmentScreenState();
-  }
+  State<AssignmentScreen> createState() => _AssignmentScreenState();
 }
 
 class _AssignmentScreenState extends State<AssignmentScreen> {
-
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AssignmentViewModel viewModel =
-          Provider.of<AssignmentViewModel>(context, listen: false);
-      viewModel.loadAssignments(widget.lessonId);
+      Provider.of<AssignmentViewModel>(
+        context,
+        listen: false,
+      ).loadAssignments(widget.lessonId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bool canEdit = widget.userRole == 'lecturer';
+    bool canEdit = widget.userRole == 'admin' || widget.userRole == 'lecturer';
 
-    double w = MediaQuery.of(context).size.width;
-    double h = MediaQuery.of(context).size.height;
+    // NO SCAFFOLD HERE - This prevents the double button glitch
+    return Consumer<AssignmentViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.assignments.isEmpty) {
+          return Center(
+            child: Text(
+              "No assignments available",
+              style: TextStyle(color: Colors.grey[400], fontSize: 16),
+            ),
+          );
+        }
 
-    return Scaffold(
-      floatingActionButton: canEdit
-          ? FloatingActionButton(
-              onPressed: () {
-                _openAssignmentForm(context, null);
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
-
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: w * 0.04,
-          vertical: h * 0.01,
-        ),
-        child: Consumer<AssignmentViewModel>(
-          builder: (
-            BuildContext context,
-            AssignmentViewModel viewModel,
-            Widget? child,
-          ) {
-            List<Assignment> assignments = viewModel.assignments;
-
-            if (assignments.isEmpty) {
-              return const Center(
-                child: Text("No assignments available"),
-              );
-            }
-
-            return ListView.builder(
-              itemCount: assignments.length,
-              itemBuilder: (BuildContext context, int index) {
-                Assignment assignment = assignments[index];
-
-                return ResourceCard(
-                  title: assignment.title,
-                  description: assignment.description,
-                  type: assignment.type,
-                  canEdit: canEdit,
-                  onEdit: () {
-                    _openAssignmentForm(context, assignment);
-                  },
-                  onDelete: () {
-                    _confirmDelete(context, assignment);
-                  },
-                  onDownload: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "Assignment download not implemented yet",
-                        ),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  void _openAssignmentForm(
-    BuildContext context,
-    Assignment? assignment,
-  ) {
-    TextEditingController titleController =
-        TextEditingController(text: assignment?.title ?? '');
-    TextEditingController descriptionController =
-        TextEditingController(text: assignment?.description ?? '');
-
-    String selectedType = assignment?.type ?? 'pdf';
-    String? pickedFilePath;
-    Uint8List? pickedFileBytes;
-    String? errorText;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return StatefulBuilder(
-          builder: (BuildContext context, void Function(void Function()) setState) {
-            return AlertDialog(
-              title: Text(
-                assignment == null ? "Add Assignment" : "Edit Assignment", 
-                style: TextStyle(color: Colors.blue.shade900),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: titleController,
-                      decoration:
-                          const InputDecoration(labelText: "Title"),
-                    ),
-                    TextField(
-                      controller: descriptionController,
-                      decoration:
-                          const InputDecoration(labelText: "Description"),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: selectedType,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'pdf',
-                          child: Text("PDF"),
-                        ),
-                        DropdownMenuItem(
-                          value: 'doc',
-                          child: Text("Word Document"),
-                        ),
-                      ],
-                      onChanged: (String? value) {
-                        if (value != null) {
-                          selectedType = value;
-                        }
-                      },
-                      decoration:
-                          const InputDecoration(labelText: "Type"),
-                    ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Select file from device"),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.file_upload),
-                          onPressed: () async {
-                            FilePickerResult? result =
-                                await FilePicker.platform.pickFiles(
-                              type: FileType.custom,
-                              allowedExtensions:
-                                  selectedType == 'pdf' ? ['pdf'] : ['doc', 'docx'],
-                              withData: true,
-                            );
-                            if (result != null &&
-                                result.files.isNotEmpty) {
-                              PlatformFile file = result.files.first;
-                              pickedFilePath = file.path ?? file.name;
-                              pickedFileBytes = file.bytes;
-                              setState(() {
-                                errorText = null;
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    if (errorText != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          errorText!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                  },
-                  child: const Text("Cancel"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (assignment == null && pickedFilePath == null) {
-                      setState(() {
-                        errorText = "Please select a file";
-                      });
-                      return;
-                    }
-
-                    AssignmentViewModel viewModel =
-                        Provider.of<AssignmentViewModel>(
-                      context,
-                      listen: false,
-                    );
-
-                    String finalFilePath =
-                        pickedFilePath ?? assignment?.filePath ?? '';
-
-                    if (assignment == null) {
-                      viewModel.addAssignment(
-                        widget.lessonId,
-                        titleController.text,
-                        descriptionController.text,
-                        selectedType,
-                        finalFilePath,
-                        fileBytes: pickedFileBytes,
-                      );
-                    } else {
-                      viewModel.updateAssignment(
-                        assignment.id,
-                        widget.lessonId,
-                        titleController.text,
-                        descriptionController.text,
-                        selectedType,
-                        finalFilePath,
-                        fileBytes: pickedFileBytes,
-                      );
-                    }
-
-                    Navigator.pop(dialogContext);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          assignment == null
-                              ? "Assignment added successfully"
-                              : "Assignment updated successfully",
-                        ),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  },
-                  child: const Text("Save"),
-                ),
-              ],
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: viewModel.assignments.length,
+          separatorBuilder: (c, i) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            return _buildAssignmentCard(
+              context,
+              viewModel.assignments[index],
+              canEdit,
             );
           },
         );
@@ -272,55 +63,111 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
     );
   }
 
-  void _confirmDelete(
+  Widget _buildAssignmentCard(
     BuildContext context,
     Assignment assignment,
+    bool canEdit,
   ) {
+    bool isPdf = assignment.type == 'pdf';
+    Color iconColor = isPdf ? Colors.redAccent : Colors.blueAccent;
+    IconData iconData = isPdf
+        ? Icons.picture_as_pdf_rounded
+        : Icons.play_circle_fill_rounded;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(iconData, color: iconColor, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    assignment.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    assignment.description,
+                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (canEdit)
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: Colors.grey[400]),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    // Call the parent's method
+                    widget.onEdit(assignment);
+                  } else if (value == 'delete') {
+                    _confirmDelete(context, assignment);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'edit', child: Text("Edit")),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text("Delete", style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Assignment assignment) {
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
-          title: const Text("Confirm Delete"),
-          content: const Text(
-            "Are you sure you want to delete this assignment?",
-          ),
+          title: const Text("Delete Assignment"),
+          content: const Text("Are you sure?"),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text("Cancel"),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-              ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
               onPressed: () {
-                AssignmentViewModel viewModel =
-                    Provider.of<AssignmentViewModel>(
+                Provider.of<AssignmentViewModel>(
                   context,
                   listen: false,
-                );
-
-                viewModel.deleteAssignment(
-                  assignment.id,
-                  widget.lessonId,
-                );
-
+                ).deleteAssignment(assignment.id, widget.lessonId);
                 Navigator.pop(dialogContext);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content:
-                        Text("Assignment deleted successfully"),
-                    backgroundColor: Colors.green,
-                  ),
-                );
               },
-              child: const Text(
-                "Delete",
-                style: TextStyle(color: Colors.white),
-              ),
+              child: const Text("Delete"),
             ),
           ],
         );
