@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/lesson.dart';
 import '../models/user.dart';
-import '../services/lesson_service.dart';
+import '../services/sqlite_lesson_service.dart';
 
 class LessonViewModel extends ChangeNotifier {
-  final LessonService _service = LessonService();
+  final SqliteLessonService _service = SqliteLessonService();
 
   List<Lesson> _lessons = [];
   Lesson? _selectedLesson;
@@ -21,14 +21,10 @@ class LessonViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    print('📚 Loading lessons for course ID: $courseId');
-
     try {
       _lessons = await _service.fetchLessonsByCourse(courseId);
-      print('✅ Loaded ${_lessons.length} lessons for course $courseId');
     } catch (e) {
       _error = 'Failed to load lessons: $e';
-      print('❌ Error loading lessons: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -53,12 +49,6 @@ class LessonViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    print('➕ Adding lesson...');
-    print('   Lesson ID: ${lesson.id}');
-    print('   Course ID: ${lesson.courseId}');
-    print('   User ID: ${user.id}');
-    print('   User Role: ${user.role}');
-
     try {
       if (!user.isStaff) {
         throw Exception('Only staff can add lessons');
@@ -67,15 +57,10 @@ class LessonViewModel extends ChangeNotifier {
       await _service.addLesson(lesson, user.id);
       _lessons.add(lesson);
       _lessons.sort((a, b) => a.order.compareTo(b.order));
-
-      print('✅ Lesson added successfully!');
-      print('   Total lessons: ${_lessons.length}');
-
       notifyListeners();
       return true;
     } catch (e) {
       _error = 'Failed to add lesson: $e';
-      print('❌ Error adding lesson: $e');
       notifyListeners();
       return false;
     } finally {
@@ -137,12 +122,13 @@ class LessonViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> markAsCompleted(String lessonId) async {
+  // FIXED: Now accepts studentId parameter
+  Future<bool> markAsCompleted(String lessonId, String studentId) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _service.markAsCompleted(lessonId);
+      await _service.markAsCompleted(lessonId, studentId);
       final index = _lessons.indexWhere((l) => l.id == lessonId);
       if (index != -1) {
         _lessons[index] = _lessons[index].copyWith(isCompleted: true);
@@ -193,11 +179,5 @@ class LessonViewModel extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
-  }
-
-  // Check if user can edit this lesson
-  Future<bool> canEditLesson(User user, String courseId) async {
-    if (!user.isStaff) return false;
-    return user.isStaff;
   }
 }

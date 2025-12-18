@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Course {
   final String id;
   final String title;
@@ -25,7 +27,25 @@ class Course {
     this.progress = 0.0,
   });
 
-  // Convert to Map for Firebase
+  // Convert from Map (from SQLite)
+  factory Course.fromMap(Map<String, dynamic> map) {
+    // Note: enrolledStudents will be empty here, they're loaded separately
+    return Course(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      description: map['description'] as String,
+      category: map['category'] as String,
+      instructorId: map['instructorId'] as String,
+      instructorName: map['instructorName'] as String,
+      enrolledStudents: [], // Will be populated separately from course_students table
+      totalLessons: (map['totalLessons'] as int?) ?? 0,
+      isActive: (map['isActive'] as int?) == 1,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      progress: (map['progress'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  // Convert to Map (for SQLite) - UPDATED: removed enrolledStudentsJson
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -34,29 +54,12 @@ class Course {
       'category': category,
       'instructorId': instructorId,
       'instructorName': instructorName,
-      'enrolledStudents': enrolledStudents,
+      // 'enrolledStudentsJson' REMOVED - we use course_students table instead
       'totalLessons': totalLessons,
-      'isActive': isActive,
+      'isActive': isActive ? 1 : 0,
       'createdAt': createdAt.toIso8601String(),
       'progress': progress,
     };
-  }
-
-  // Create from Map
-  factory Course.fromMap(Map<String, dynamic> map) {
-    return Course(
-      id: map['id'] ?? '',
-      title: map['title'] ?? '',
-      description: map['description'] ?? '',
-      category: map['category'] ?? '',
-      instructorId: map['instructorId'] ?? '',
-      instructorName: map['instructorName'] ?? '',
-      enrolledStudents: List<String>.from(map['enrolledStudents'] ?? []),
-      totalLessons: map['totalLessons'] ?? 0,
-      isActive: map['isActive'] ?? true,
-      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
-      progress: (map['progress'] ?? 0.0).toDouble(),
-    );
   }
 
   // Update copy

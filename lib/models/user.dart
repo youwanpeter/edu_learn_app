@@ -1,25 +1,41 @@
-
 class User {
-final String id;
-final String name;
-final String email;
-final String role; // 'staff' or 'student'
+  final String id;
+  final String name;
+  final String email;
+  final String role; // 'staff' or 'student'
 
-const User({
-required this.id,
-required this.name,
-required this.email,
-required this.role,
-});
+  const User({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+  });
 
-bool get isStaff => role == 'staff';
-bool get isStudent => role == 'student';
+  bool get isStaff => role == 'staff';
+  bool get isStudent => role == 'student';
 
-// Helper for backward compatibility
-bool get canEdit => isStaff;
+  // Convert from Map (from SQLite)
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'],
+      name: map['name'],
+      email: map['email'],
+      role: map['role'],
+    );
+  }
 
-@override
-String toString() {
-return 'User(id: $id, name: $name, email: $email, role: $role)';
-}
+  // Convert to Map (for SQLite)
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'role': role,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'User(id: $id, name: $name, email: $email, role: $role)';
+  }
 }

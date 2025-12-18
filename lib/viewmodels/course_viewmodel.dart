@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/course.dart';
 import '../models/user.dart';
-import '../services/course_service.dart';
+import '../services/sqlite_course_service.dart';
+import '../services/database_helper.dart';
 
 class CourseViewModel extends ChangeNotifier {
-  final CourseService _service = CourseService();
+  final SqliteCourseService _service = SqliteCourseService();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
   List<Course> _courses = [];
   Course? _selectedCourse;
@@ -15,6 +17,23 @@ class CourseViewModel extends ChangeNotifier {
   Course? get selectedCourse => _selectedCourse;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  // Constructor - initialize database
+  CourseViewModel() {
+    print('📦 Course created');
+    _initialize();
+  }
+
+  // Initialize database
+  Future<void> _initialize() async {
+    try {
+      print('🔧 Initializing CourseViewModel database...');
+      await _dbHelper.insertInitialData();
+      print('✅ CourseViewModel database initialized');
+    } catch (e) {
+      print('❌ Error initializing database: $e');
+    }
+  }
 
   // Load courses based on user role
   Future<void> loadCourses(User user) async {
@@ -88,6 +107,7 @@ class CourseViewModel extends ChangeNotifier {
 
     print('➕ Adding new course...');
     print('   Title: ${course.title}');
+    print('   Description: ${course.description}');
     print('   Instructor: ${user.name} (${user.id})');
 
     try {
@@ -101,11 +121,14 @@ class CourseViewModel extends ChangeNotifier {
         instructorName: user.name,
       );
 
+      print('   Course ID: ${courseWithInstructor.id}');
+      print('   Created At: ${courseWithInstructor.createdAt}');
+
       await _service.addCourse(courseWithInstructor);
       _courses.add(courseWithInstructor);
 
       print('✅ Course added successfully!');
-      print('   Course ID: ${courseWithInstructor.id}');
+      print('   Total courses now: ${_courses.length}');
 
       notifyListeners();
       return true;
@@ -228,5 +251,10 @@ class CourseViewModel extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  // Initialize method for Provider
+  Future<void> initialize() async {
+    await _initialize();
   }
 }
