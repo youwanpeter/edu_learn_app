@@ -24,18 +24,19 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _contentController;
-  late TextEditingController _videoUrlController;
-  late TextEditingController _pdfUrlController;
   late TextEditingController _orderController;
   bool _isLocked = false;
 
   @override
   void initState() {
     super.initState();
+    print('🎯 AddEditLessonView initialized');
+    print('   User: ${widget.user.name} (${widget.user.role})');
+    print('   Course ID: ${widget.courseId}');
+    print('   Is Edit Mode: ${widget.lesson != null}');
+
     _titleController = TextEditingController(text: widget.lesson?.title ?? '');
     _contentController = TextEditingController(text: widget.lesson?.content ?? '');
-    _videoUrlController = TextEditingController(text: widget.lesson?.videoUrl ?? '');
-    _pdfUrlController = TextEditingController(text: widget.lesson?.pdfUrl ?? '');
     _orderController = TextEditingController(text: widget.lesson?.order.toString() ?? '1');
     _isLocked = widget.lesson?.isLocked ?? false;
   }
@@ -44,8 +45,6 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
-    _videoUrlController.dispose();
-    _pdfUrlController.dispose();
     _orderController.dispose();
     super.dispose();
   }
@@ -58,7 +57,7 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Lesson' : 'Create Lesson'),
         actions: [
-          if (isEdit && widget.user.isAdmin)
+          if (isEdit && widget.user.isStaff)
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: _deleteLesson,
@@ -134,26 +133,6 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
                 return null;
               },
               maxLines: 8,
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildTextField(
-              controller: _videoUrlController,
-              label: 'Video URL (Optional)',
-              icon: Icons.video_library,
-              hint: 'https://example.com/video.mp4',
-              validator: (value) => null,
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildTextField(
-              controller: _pdfUrlController,
-              label: 'PDF URL (Optional)',
-              icon: Icons.picture_as_pdf,
-              hint: 'https://example.com/notes.pdf',
-              validator: (value) => null,
             ),
 
             const SizedBox(height: 24),
@@ -355,47 +334,70 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
     final viewModel = context.read<LessonViewModel>();
     final order = int.tryParse(_orderController.text) ?? 1;
 
+    print('📝 Submitting lesson form...');
+    print('   Course ID: ${widget.courseId}');
+    print('   User: ${widget.user.name} (${widget.user.id})');
+    print('   Title: ${_titleController.text}');
+    print('   Order: $order');
+
     try {
       if (widget.lesson != null) {
+        // Update existing lesson
         final updatedLesson = widget.lesson!.copyWith(
           title: _titleController.text,
           content: _contentController.text,
-          videoUrl: _videoUrlController.text.isNotEmpty ? _videoUrlController.text : null,
-          pdfUrl: _pdfUrlController.text.isNotEmpty ? _pdfUrlController.text : null,
           order: order,
           isLocked: _isLocked,
         );
-        await viewModel.updateLesson(updatedLesson);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lesson updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+
+        print('🔄 Updating lesson: ${updatedLesson.id}');
+
+        final success = await viewModel.updateLesson(updatedLesson, widget.user);
+        if (success) {
+          print('✅ Lesson updated successfully');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Lesson updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
       } else {
+        // Create new lesson
         final newLesson = Lesson(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           courseId: widget.courseId,
           title: _titleController.text,
           content: _contentController.text,
-          videoUrl: _videoUrlController.text.isNotEmpty ? _videoUrlController.text : null,
-          pdfUrl: _pdfUrlController.text.isNotEmpty ? _pdfUrlController.text : null,
           order: order,
           isLocked: _isLocked,
           createdAt: DateTime.now(),
         );
-        await viewModel.addLesson(newLesson);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lesson created successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
 
-      Navigator.pop(context);
+        print('🆕 Creating new lesson...');
+        print('   Lesson ID: ${newLesson.id}');
+
+        final success = await viewModel.addLesson(newLesson, widget.user);
+        if (success) {
+          print('✅ Lesson created successfully');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Lesson created successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      }
     } catch (e) {
-      // Error is already shown by viewModel
+      print('❌ Error submitting form: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -425,14 +427,16 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
 
     if (confirmed == true) {
       try {
-        await context.read<LessonViewModel>().deleteLesson(widget.lesson!.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Lesson deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context);
+        final success = await context.read<LessonViewModel>().deleteLesson(widget.lesson!.id, widget.user);
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Lesson deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/user.dart';
+import '../../viewmodels/dashboard_viewmodel.dart'; // If you have user info here
 import '../../views/course/course_list_view.dart';
 
 class DashboardFooter extends StatelessWidget {
@@ -49,19 +50,19 @@ class DashboardFooter extends StatelessWidget {
             label: "Courses",
             active: currentIndex == 1,
             onTap: onCoursesTap ?? () {
-              // Navigate to your CourseListView
-              final user = User(
-                id: 'student1',
-                name: 'Youwan',
-                email: 'youwan@example.com',
-                role: 'student',
-              );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CourseListView(user: user),
-                ),
-              );
+              // Option 1: Get user from your HomeScreen's role switcher
+              // (This requires passing user down or using Provider)
+
+              // Option 2: Hardcoded for testing (choose one role)
+              // final user = User(
+              //   id: 'staff1', // For staff testing
+              //   name: 'Prof. Sewwandi',
+              //   email: 'sewwandi@university.com',
+              //   role: 'staff',
+              // );
+
+              // Option 3: Check current route to determine role
+              _navigateToCourses(context);
             },
           ),
           _NavItem(
@@ -77,6 +78,64 @@ class DashboardFooter extends StatelessWidget {
             onTap: onProfileTap ?? () {},
           ),
         ],
+      ),
+    );
+  }
+
+  void _navigateToCourses(BuildContext context) {
+    // Check the current route or use a flag to determine user role
+    // For now, let's create a user selector dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select User Role'),
+        content: const Text('Choose which role to use for testing:'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _openCoursesWithRole(context, 'staff');
+            },
+            child: const Text('Staff (Lecturer)'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _openCoursesWithRole(context, 'student');
+            },
+            child: const Text('Student'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openCoursesWithRole(BuildContext context, String role) {
+    User user;
+
+    if (role == 'staff') {
+      user = User(
+        id: 'staff1',
+        name: 'Prof. Sewwandi',
+        email: 'sewwandi@university.com',
+        role: 'staff',
+      );
+    } else {
+      user = User(
+        id: 'student1',
+        name: 'Yashodha Sewwandi',
+        email: 'yashodha@example.com',
+        role: 'student',
+      );
+    }
+
+    print('🎯 Navigating to CourseListView');
+    print('   User: ${user.name} (${user.role})');
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourseListView(user: user),
       ),
     );
   }

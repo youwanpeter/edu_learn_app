@@ -38,7 +38,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       StudyMaterialViewModel viewModel =
-          Provider.of<StudyMaterialViewModel>(context, listen: false);
+      Provider.of<StudyMaterialViewModel>(context, listen: false);
       viewModel.loadMaterials(widget.lessonId);
     });
   }
@@ -109,11 +109,11 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
 
       floatingActionButton: canEdit && _tabController.index == 0
           ? FloatingActionButton(
-              onPressed: () {
-                _openMaterialForm(context, null);
-              },
-              child: const Icon(Icons.add),
-            )
+        onPressed: () {
+          _openMaterialForm(context, null);
+        },
+        child: const Icon(Icons.add),
+      )
           : null,
 
       body: TabBarView(
@@ -180,14 +180,14 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                 Expanded(
                   child: Consumer<StudyMaterialViewModel>(
                     builder: (
-                      BuildContext context,
-                      StudyMaterialViewModel viewModel,
-                      Widget? child,
-                    ) {
+                        BuildContext context,
+                        StudyMaterialViewModel viewModel,
+                        Widget? child,
+                        ) {
                       List<StudyMaterial> materials = viewModel.materials;
 
                       List<StudyMaterial> filteredMaterials =
-                          materials.where((material) {
+                      materials.where((material) {
                         bool matchesSearch = material.title
                             .toLowerCase()
                             .contains(_searchQuery);
@@ -250,9 +250,9 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
 
   void _openMaterialForm(BuildContext context, StudyMaterial? material) {
     TextEditingController titleController =
-        TextEditingController(text: material?.title ?? '');
+    TextEditingController(text: material?.title ?? '');
     TextEditingController descriptionController =
-        TextEditingController(text: material?.description ?? '');
+    TextEditingController(text: material?.description ?? '');
 
     String selectedType = material?.type ?? 'pdf';
     String? pickedFilePath;
@@ -266,7 +266,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
           builder: (context, setState) {
             return AlertDialog(
               title: Text(material == null ? "Add Material" : "Edit Material",
-              style: TextStyle(color: Colors.blue.shade900),
+                style: TextStyle(color: Colors.blue.shade900),
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -275,12 +275,12 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                     TextField(
                       controller: titleController,
                       decoration:
-                          const InputDecoration(labelText: "Title"),
+                      const InputDecoration(labelText: "Title"),
                     ),
                     TextField(
                       controller: descriptionController,
                       decoration:
-                          const InputDecoration(labelText: "Description"),
+                      const InputDecoration(labelText: "Description"),
                     ),
                     DropdownButtonFormField<String>(
                       value: selectedType,
@@ -300,7 +300,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                         }
                       },
                       decoration:
-                          const InputDecoration(labelText: "Type"),
+                      const InputDecoration(labelText: "Type"),
                     ),
                     Row(
                       children: [
@@ -311,12 +311,12 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                           icon: const Icon(Icons.file_upload),
                           onPressed: () async {
                             FilePickerResult? result =
-                                await FilePicker.platform.pickFiles(
+                            await FilePicker.platform.pickFiles(
                               type: selectedType == 'pdf'
                                   ? FileType.custom
                                   : FileType.video,
                               allowedExtensions:
-                                  selectedType == 'pdf' ? ['pdf'] : null,
+                              selectedType == 'pdf' ? ['pdf'] : null,
                               withData: true,
                             );
                             if (result != null &&
@@ -360,7 +360,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
                     }
 
                     StudyMaterialViewModel viewModel =
-                        Provider.of<StudyMaterialViewModel>(
+                    Provider.of<StudyMaterialViewModel>(
                       context,
                       listen: false,
                     );
@@ -424,7 +424,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
         return AlertDialog(
           title: const Text("Confirm Delete"),
           content:
-              const Text("Are you sure you want to delete this material?"),
+          const Text("Are you sure you want to delete this material?"),
           actions: [
             TextButton(
               onPressed: () {
@@ -438,7 +438,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen>
               ),
               onPressed: () {
                 StudyMaterialViewModel viewModel =
-                    Provider.of<StudyMaterialViewModel>(
+                Provider.of<StudyMaterialViewModel>(
                   context,
                   listen: false,
                 );

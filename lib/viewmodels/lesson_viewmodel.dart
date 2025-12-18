@@ -21,10 +21,14 @@ class LessonViewModel extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    print('📚 Loading lessons for course ID: $courseId');
+
     try {
       _lessons = await _service.fetchLessonsByCourse(courseId);
+      print('✅ Loaded ${_lessons.length} lessons for course $courseId');
     } catch (e) {
       _error = 'Failed to load lessons: $e';
+      print('❌ Error loading lessons: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -45,18 +49,33 @@ class LessonViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> addLesson(Lesson lesson) async {
+  Future<bool> addLesson(Lesson lesson, User user) async {
     _isLoading = true;
     notifyListeners();
 
+    print('➕ Adding lesson...');
+    print('   Lesson ID: ${lesson.id}');
+    print('   Course ID: ${lesson.courseId}');
+    print('   User ID: ${user.id}');
+    print('   User Role: ${user.role}');
+
     try {
-      await _service.addLesson(lesson);
+      if (!user.isStaff) {
+        throw Exception('Only staff can add lessons');
+      }
+
+      await _service.addLesson(lesson, user.id);
       _lessons.add(lesson);
       _lessons.sort((a, b) => a.order.compareTo(b.order));
+
+      print('✅ Lesson added successfully!');
+      print('   Total lessons: ${_lessons.length}');
+
       notifyListeners();
       return true;
     } catch (e) {
       _error = 'Failed to add lesson: $e';
+      print('❌ Error adding lesson: $e');
       notifyListeners();
       return false;
     } finally {
@@ -64,12 +83,16 @@ class LessonViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateLesson(Lesson lesson) async {
+  Future<bool> updateLesson(Lesson lesson, User user) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _service.updateLesson(lesson);
+      if (!user.isStaff) {
+        throw Exception('Only staff can update lessons');
+      }
+
+      await _service.updateLesson(lesson, user.id);
       final index = _lessons.indexWhere((l) => l.id == lesson.id);
       if (index != -1) {
         _lessons[index] = lesson;
@@ -89,12 +112,16 @@ class LessonViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteLesson(String lessonId) async {
+  Future<bool> deleteLesson(String lessonId, User user) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _service.deleteLesson(lessonId);
+      if (!user.isStaff) {
+        throw Exception('Only staff can delete lessons');
+      }
+
+      await _service.deleteLesson(lessonId, user.id);
       _lessons.removeWhere((lesson) => lesson.id == lessonId);
       if (_selectedLesson?.id == lessonId) {
         _selectedLesson = null;
@@ -134,12 +161,16 @@ class LessonViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> toggleLock(String lessonId) async {
+  Future<bool> toggleLock(String lessonId, User user) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _service.toggleLock(lessonId);
+      if (!user.isStaff) {
+        throw Exception('Only staff can lock/unlock lessons');
+      }
+
+      await _service.toggleLock(lessonId, user.id);
       final index = _lessons.indexWhere((l) => l.id == lessonId);
       if (index != -1) {
         final current = _lessons[index];
@@ -164,7 +195,9 @@ class LessonViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool canEditLesson(User user, String instructorId) {
-    return user.isAdmin || (user.isStaff && user.id == instructorId);
+  // Check if user can edit this lesson
+  Future<bool> canEditLesson(User user, String courseId) async {
+    if (!user.isStaff) return false;
+    return user.isStaff;
   }
 }
