@@ -1,45 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'viewmodels/study_material_viewmodel.dart';
-import 'viewmodels/assignment_viewmodel.dart';
-import 'views/study_material_screen.dart';
-import 'views/assignment_screen.dart';
+
+import 'viewmodels/dashboard_viewmodel.dart';
+import 'viewmodels/feature2_viewmodel.dart';
+
+import 'views/dashboard_view.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const EduLearnApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class EduLearnApp extends StatelessWidget {
+  const EduLearnApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => StudyMaterialViewModel()),
-        ChangeNotifierProvider(create: (_) => AssignmentViewModel()),
+        // ✅ PROVIDE DASHBOARD VIEWMODEL
+        ChangeNotifierProvider(
+          create: (_) => DashboardViewModel()..loadDashboard(),
+        ),
+
+        // ✅ PROVIDE FEATURE 2 VIEWMODEL
+        ChangeNotifierProvider(create: (_) => Feature2ViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
-        ),
-        home: const HomeScreen(),
+        title: 'Edu Learn App',
+        theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
+        home: const DashboardView(), // ✅ SAFE NOW
       ),
     );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Mock data for testing
-    const lessonId = 'lesson1';
-    const userRole = 'lecturer';
-
-    return StudyMaterialScreen(lessonId: lessonId, userRole: userRole);
   }
 }

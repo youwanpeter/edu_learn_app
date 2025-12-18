@@ -4,21 +4,14 @@ class RoleBadge extends StatelessWidget {
   final String role;
   final double size;
 
-  const RoleBadge({
-    Key? key,
-    required this.role,
-    this.size = 1.0,
-  }) : super(key: key);
+  const RoleBadge({super.key, required this.role, this.size = 1.0});
 
   @override
   Widget build(BuildContext context) {
     final roleData = _getRoleData(role);
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 8 * size,
-        vertical: 4 * size,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 8 * size, vertical: 4 * size),
       decoration: BoxDecoration(
         color: roleData.color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12 * size),
@@ -30,11 +23,7 @@ class RoleBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            roleData.icon,
-            size: 12 * size,
-            color: roleData.color,
-          ),
+          Icon(roleData.icon, size: 12 * size, color: roleData.color),
           SizedBox(width: 4 * size),
           Text(
             roleData.label,
@@ -82,9 +71,5 @@ class _RoleData {
   final Color color;
   final IconData icon;
 
-  _RoleData({
-    required this.label,
-    required this.color,
-    required this.icon,
-  });
+  _RoleData({required this.label, required this.color, required this.icon});
 }

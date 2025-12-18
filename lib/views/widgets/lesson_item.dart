@@ -10,14 +10,14 @@ class LessonItem extends StatelessWidget {
   final VoidCallback? onComplete;
 
   const LessonItem({
-    Key? key,
+    super.key,
     required this.lesson,
     required this.userRole,
     required this.onTap,
     this.onEdit,
     this.onDelete,
     this.onComplete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +87,26 @@ class LessonItem extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: lesson.isLocked ? Colors.grey : Colors.black87,
+                              color: lesson.isLocked
+                                  ? Colors.grey
+                                  : Colors.black87,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (lesson.isCompleted)
-                          const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 18,
+                          ),
                         if (lesson.isLocked)
-                          const Icon(Icons.lock, color: Colors.orange, size: 18),
+                          const Icon(
+                            Icons.lock,
+                            color: Colors.orange,
+                            size: 18,
+                          ),
                       ],
                     ),
 
@@ -108,7 +118,10 @@ class LessonItem extends StatelessWidget {
                         children: [
                           if (lesson.videoUrl != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.red.shade50,
                                 borderRadius: BorderRadius.circular(4),
@@ -116,7 +129,11 @@ class LessonItem extends StatelessWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.video_library, size: 10, color: Colors.red),
+                                  const Icon(
+                                    Icons.video_library,
+                                    size: 10,
+                                    color: Colors.red,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'Video',
@@ -131,7 +148,10 @@ class LessonItem extends StatelessWidget {
                             ),
                           if (lesson.pdfUrl != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.orange.shade50,
                                 borderRadius: BorderRadius.circular(4),
@@ -139,7 +159,11 @@ class LessonItem extends StatelessWidget {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.picture_as_pdf, size: 10, color: Colors.orange),
+                                  const Icon(
+                                    Icons.picture_as_pdf,
+                                    size: 10,
+                                    color: Colors.orange,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'PDF',
@@ -179,7 +203,10 @@ class LessonItem extends StatelessWidget {
               padding: const EdgeInsets.only(right: 12),
               child: Column(
                 children: [
-                  if (userRole == 'student' && !lesson.isCompleted && !lesson.isLocked && onComplete != null)
+                  if (userRole == 'student' &&
+                      !lesson.isCompleted &&
+                      !lesson.isLocked &&
+                      onComplete != null)
                     IconButton(
                       icon: Container(
                         width: 28,
@@ -188,14 +215,19 @@ class LessonItem extends StatelessWidget {
                           color: Colors.green.shade100,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.check, size: 16, color: Colors.green),
+                        child: const Icon(
+                          Icons.check,
+                          size: 16,
+                          color: Colors.green,
+                        ),
                       ),
                       onPressed: onComplete,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
 
-                  if ((userRole == 'staff' || userRole == 'admin') && onEdit != null)
+                  if ((userRole == 'staff' || userRole == 'admin') &&
+                      onEdit != null)
                     IconButton(
                       icon: Container(
                         width: 28,
@@ -204,7 +236,11 @@ class LessonItem extends StatelessWidget {
                           color: Colors.blue.shade100,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.edit, size: 16, color: Colors.blue),
+                        child: const Icon(
+                          Icons.edit,
+                          size: 16,
+                          color: Colors.blue,
+                        ),
                       ),
                       onPressed: onEdit,
                       padding: EdgeInsets.zero,
@@ -220,7 +256,11 @@ class LessonItem extends StatelessWidget {
                           color: Colors.red.shade100,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.delete, size: 16, color: Colors.red),
+                        child: const Icon(
+                          Icons.delete,
+                          size: 16,
+                          color: Colors.red,
+                        ),
                       ),
                       onPressed: onDelete,
                       padding: EdgeInsets.zero,

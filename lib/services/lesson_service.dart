@@ -2,7 +2,7 @@ import '../models/lesson.dart';
 
 class LessonService {
   // Mock database
-  List<Lesson> _lessons = [
+  final List<Lesson> _lessons = [
     Lesson(
       id: '1',
       courseId: '1',
@@ -38,9 +38,7 @@ class LessonService {
 
   Future<List<Lesson>> fetchLessonsByCourse(String courseId) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    return _lessons
-        .where((lesson) => lesson.courseId == courseId)
-        .toList()
+    return _lessons.where((lesson) => lesson.courseId == courseId).toList()
       ..sort((a, b) => a.order.compareTo(b.order));
   }
 
@@ -60,7 +58,9 @@ class LessonService {
 
   Future<void> updateLesson(Lesson updatedLesson) async {
     await Future.delayed(const Duration(seconds: 1));
-    final index = _lessons.indexWhere((lesson) => lesson.id == updatedLesson.id);
+    final index = _lessons.indexWhere(
+      (lesson) => lesson.id == updatedLesson.id,
+    );
     if (index != -1) {
       _lessons[index] = updatedLesson;
     }

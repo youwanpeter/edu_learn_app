@@ -1,38 +1,22 @@
-import '../models/assignment.dart';
+import 'local_db.dart';
 
 class AssignmentService {
-  static final List<Assignment> _assignments = [];
-
-  static List<Assignment> getByLesson(String lessonId) {
-    List<Assignment> result = [];
-    for (int i = 0; i < _assignments.length; i = i + 1) {
-      if (_assignments[i].lessonId == lessonId) {
-        result.add(_assignments[i]);
-      }
-    }
-    return result;
+  Future<List<Map<String, dynamic>>> getAssignments(String courseId) async {
+    final db = await LocalDB.db;
+    return db.query(
+      'assignments',
+      where: 'course_id = ?',
+      whereArgs: [courseId],
+    );
   }
 
-  static void add(Assignment assignment) {
-    _assignments.add(assignment);
+  Future<void> addAssignment(Map<String, dynamic> data) async {
+    final db = await LocalDB.db;
+    await db.insert('assignments', data);
   }
 
-  static void update(Assignment assignment) {
-    for (int i = 0; i < _assignments.length; i = i + 1) {
-      if (_assignments[i].id == assignment.id) {
-        _assignments[i] = assignment;
-        break;
-      }
-    }
-  }
-
-  static void delete(String id) {
-    _assignments.removeWhere((a) {
-      if (a.id == id) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+  Future<void> deleteAssignment(int id) async {
+    final db = await LocalDB.db;
+    await db.delete('assignments', where: 'id = ?', whereArgs: [id]);
   }
 }

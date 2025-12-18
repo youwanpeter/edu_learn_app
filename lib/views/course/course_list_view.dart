@@ -20,18 +20,17 @@ class _CourseListViewState extends State<CourseListView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<CourseViewModel>(context, listen: false)
-          .loadCourses(widget.user);
+      Provider.of<CourseViewModel>(
+        context,
+        listen: false,
+      ).loadCourses(widget.user);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle()),
-        actions: _buildAppBarActions(),
-      ),
+      appBar: AppBar(title: Text(_getTitle()), actions: _buildAppBarActions()),
       body: Consumer<CourseViewModel>(
         builder: (context, viewModel, child) {
           if (viewModel.isLoading && viewModel.courses.isEmpty) {
@@ -69,7 +68,10 @@ class _CourseListViewState extends State<CourseListView> {
                   const SizedBox(height: 16),
                   Text(
                     _getEmptyMessage(),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -107,13 +109,15 @@ class _CourseListViewState extends State<CourseListView> {
     );
   }
 
-  Widget _buildCourseCard(BuildContext context, Course course, CourseViewModel viewModel) {
+  Widget _buildCourseCard(
+    BuildContext context,
+    Course course,
+    CourseViewModel viewModel,
+  ) {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -181,9 +185,15 @@ class _CourseListViewState extends State<CourseListView> {
             // Footer
             Row(
               children: [
-                _buildInfoItem(Icons.people, '${course.enrolledStudents.length}'),
+                _buildInfoItem(
+                  Icons.people,
+                  '${course.enrolledStudents.length}',
+                ),
                 const SizedBox(width: 16),
-                _buildInfoItem(Icons.menu_book, '${course.totalLessons} lessons'),
+                _buildInfoItem(
+                  Icons.menu_book,
+                  '${course.totalLessons} lessons',
+                ),
                 const Spacer(),
 
                 if (widget.user.isStudent)
@@ -209,7 +219,8 @@ class _CourseListViewState extends State<CourseListView> {
                       if (widget.user.isAdmin)
                         IconButton(
                           icon: const Icon(Icons.delete, size: 20),
-                          onPressed: () => _deleteCourse(context, course.id, viewModel),
+                          onPressed: () =>
+                              _deleteCourse(context, course.id, viewModel),
                           color: Colors.red,
                           tooltip: 'Delete Course',
                         ),
@@ -243,10 +254,7 @@ class _CourseListViewState extends State<CourseListView> {
       children: [
         Icon(icon, size: 16, color: Colors.grey),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(color: Colors.grey),
-        ),
+        Text(text, style: const TextStyle(color: Colors.grey)),
       ],
     );
   }
@@ -269,8 +277,8 @@ class _CourseListViewState extends State<CourseListView> {
       return FloatingActionButton(
         onPressed: _navigateToAddCourse,
         backgroundColor: const Color.fromARGB(255, 255, 0, 0),
-        child: const Icon(Icons.add, color: Colors.white),
         tooltip: 'Add New Course',
+        child: const Icon(Icons.add, color: Colors.white),
       );
     }
     return null;
@@ -304,10 +312,8 @@ class _CourseListViewState extends State<CourseListView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CourseDetailView(
-          courseId: courseId,
-          user: widget.user,
-        ),
+        builder: (context) =>
+            CourseDetailView(courseId: courseId, user: widget.user),
       ),
     );
   }
@@ -316,12 +322,13 @@ class _CourseListViewState extends State<CourseListView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditCourseView(
-          user: widget.user,
-        ),
+        builder: (context) => AddEditCourseView(user: widget.user),
       ),
     ).then((_) {
-      Provider.of<CourseViewModel>(context, listen: false).loadCourses(widget.user);
+      Provider.of<CourseViewModel>(
+        context,
+        listen: false,
+      ).loadCourses(widget.user);
     });
   }
 
@@ -329,22 +336,29 @@ class _CourseListViewState extends State<CourseListView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditCourseView(
-          user: widget.user,
-          course: course,
-        ),
+        builder: (context) =>
+            AddEditCourseView(user: widget.user, course: course),
       ),
     ).then((_) {
-      Provider.of<CourseViewModel>(context, listen: false).loadCourses(widget.user);
+      Provider.of<CourseViewModel>(
+        context,
+        listen: false,
+      ).loadCourses(widget.user);
     });
   }
 
-  Future<void> _deleteCourse(BuildContext context, String courseId, CourseViewModel viewModel) async {
+  Future<void> _deleteCourse(
+    BuildContext context,
+    String courseId,
+    CourseViewModel viewModel,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Course'),
-        content: const Text('Are you sure you want to delete this course? All lessons will also be deleted.'),
+        content: const Text(
+          'Are you sure you want to delete this course? All lessons will also be deleted.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -380,10 +394,7 @@ class _CourseListViewState extends State<CourseListView> {
   }
 
   void _searchCourses() {
-    showSearch(
-      context: context,
-      delegate: _CourseSearchDelegate(widget.user),
-    );
+    showSearch(context: context, delegate: _CourseSearchDelegate(widget.user));
   }
 }
 
@@ -395,10 +406,7 @@ class _CourseSearchDelegate extends SearchDelegate {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () => query = '',
-      ),
+      IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
     ];
   }
 
@@ -468,10 +476,8 @@ class _CourseSearchDelegate extends SearchDelegate {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CourseDetailView(
-                    courseId: course.id,
-                    user: user,
-                  ),
+                  builder: (context) =>
+                      CourseDetailView(courseId: course.id, user: user),
                 ),
               );
             },

@@ -1,21 +1,25 @@
-import 'dart:typed_data';
-
 class Assignment {
-  String id;
-  String lessonId;
-  String title;
-  String description;
-  String type;
-  String filePath;
-  Uint8List? fileBytes;
+  final int id;
+  final String courseId;
+  final String title;
+  final DateTime dueDate;
+  final String attachmentPath;
 
   Assignment({
     required this.id,
-    required this.lessonId,
+    required this.courseId,
     required this.title,
-    required this.description,
-    required this.type,
-    required this.filePath,
-    this.fileBytes,
+    required this.dueDate,
+    required this.attachmentPath,
   });
+
+  factory Assignment.fromMap(Map<String, dynamic> map) {
+    return Assignment(
+      id: map['id'],
+      courseId: map['course_id'],
+      title: map['title'],
+      dueDate: DateTime.parse(map['due_date']),
+      attachmentPath: map['attachment_path'] ?? '',
+    );
+  }
 }

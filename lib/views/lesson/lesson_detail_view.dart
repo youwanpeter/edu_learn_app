@@ -10,10 +10,10 @@ class LessonDetailView extends StatefulWidget {
   final User user;
 
   const LessonDetailView({
-    Key? key,
+    super.key,
     required this.lessonId,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   _LessonDetailViewState createState() => _LessonDetailViewState();
@@ -135,20 +135,22 @@ class _LessonDetailViewState extends State<LessonDetailView> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: lesson.isCompleted ? Colors.green.shade50 : Colors.blue.shade50,
+                  color: lesson.isCompleted
+                      ? Colors.green.shade50
+                      : Colors.blue.shade50,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: lesson.isCompleted
                     ? const Icon(Icons.check, size: 30, color: Colors.green)
                     : Text(
-                  lesson.order.toString(),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
+                        lesson.order.toString(),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -174,11 +176,7 @@ class _LessonDetailViewState extends State<LessonDetailView> {
               ),
               const SizedBox(width: 8),
               if (lesson.isLocked)
-                _buildStatusBadge(
-                  'Locked',
-                  Colors.orange,
-                  Icons.lock,
-                ),
+                _buildStatusBadge('Locked', Colors.orange, Icons.lock),
             ],
           ),
         ],
@@ -218,10 +216,7 @@ class _LessonDetailViewState extends State<LessonDetailView> {
       children: [
         const Text(
           'Lesson Content',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
         Container(
@@ -250,10 +245,7 @@ class _LessonDetailViewState extends State<LessonDetailView> {
       children: [
         const Text(
           'Attachments',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
 
@@ -278,7 +270,13 @@ class _LessonDetailViewState extends State<LessonDetailView> {
     );
   }
 
-  Widget _buildAttachmentCard(String title, IconData icon, Color color, String subtitle, String url) {
+  Widget _buildAttachmentCard(
+    String title,
+    IconData icon,
+    Color color,
+    String subtitle,
+    String url,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -293,15 +291,9 @@ class _LessonDetailViewState extends State<LessonDetailView> {
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
         ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(color: Colors.grey.shade600),
-        ),
+        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey.shade600)),
         trailing: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -313,10 +305,7 @@ class _LessonDetailViewState extends State<LessonDetailView> {
         onTap: () {
           // Open URL
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening: $title'),
-              backgroundColor: color,
-            ),
+            SnackBar(content: Text('Opening: $title'), backgroundColor: color),
           );
         },
       ),
@@ -357,10 +346,7 @@ class _LessonDetailViewState extends State<LessonDetailView> {
                 ),
               ),
               onPressed: () => _navigateToEditLesson(lesson),
-              child: const Text(
-                'Edit Lesson',
-                style: TextStyle(fontSize: 16),
-              ),
+              child: const Text('Edit Lesson', style: TextStyle(fontSize: 16)),
             ),
           ),
 
@@ -397,14 +383,14 @@ class _LessonDetailViewState extends State<LessonDetailView> {
     if (canEdit && lesson.isLocked) {
       return FloatingActionButton(
         onPressed: () => _toggleLock(context, lesson.id),
-        child: const Icon(Icons.lock_open),
         backgroundColor: Colors.orange,
+        child: const Icon(Icons.lock_open),
       );
     } else if (canEdit && !lesson.isLocked) {
       return FloatingActionButton(
         onPressed: () => _toggleLock(context, lesson.id),
-        child: const Icon(Icons.lock),
         backgroundColor: Colors.orange,
+        child: const Icon(Icons.lock),
       );
     }
     return null;
@@ -430,16 +416,16 @@ class _LessonDetailViewState extends State<LessonDetailView> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Lesson'),
-        content: const Text('Are you sure you want to delete this lesson? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this lesson? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Delete'),
           ),
@@ -494,9 +480,9 @@ class _LessonDetailViewState extends State<LessonDetailView> {
       final lesson = context.read<LessonViewModel>().selectedLesson;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(lesson?.isLocked == true
-              ? 'Lesson locked'
-              : 'Lesson unlocked'),
+          content: Text(
+            lesson?.isLocked == true ? 'Lesson locked' : 'Lesson unlocked',
+          ),
           backgroundColor: Colors.orange,
         ),
       );

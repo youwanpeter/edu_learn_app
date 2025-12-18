@@ -10,11 +10,7 @@ class LessonListView extends StatefulWidget {
   final String courseId;
   final User user;
 
-  const LessonListView({
-    Key? key,
-    required this.courseId,
-    required this.user,
-  }) : super(key: key);
+  const LessonListView({super.key, required this.courseId, required this.user});
 
   @override
   _LessonListViewState createState() => _LessonListViewState();
@@ -48,10 +44,7 @@ class _LessonListViewState extends State<LessonListView> {
   List<Widget> _buildAppBarActions() {
     if (widget.user.isStaff || widget.user.isAdmin) {
       return [
-        IconButton(
-          icon: const Icon(Icons.sort),
-          onPressed: _showSortOptions,
-        ),
+        IconButton(icon: const Icon(Icons.sort), onPressed: _showSortOptions),
       ];
     }
     return [];
@@ -89,11 +82,7 @@ class _LessonListViewState extends State<LessonListView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.menu_book,
-              size: 80,
-              color: Colors.grey.shade300,
-            ),
+            Icon(Icons.menu_book, size: 80, color: Colors.grey.shade300),
             const SizedBox(height: 16),
             const Text(
               'No lessons available',
@@ -157,7 +146,9 @@ class _LessonListViewState extends State<LessonListView> {
 
   Widget _buildStatsHeader(LessonViewModel viewModel) {
     final totalLessons = viewModel.lessons.length;
-    final completedLessons = viewModel.lessons.where((l) => l.isCompleted).length;
+    final completedLessons = viewModel.lessons
+        .where((l) => l.isCompleted)
+        .length;
     final lockedLessons = viewModel.lessons.where((l) => l.isLocked).length;
     final progress = totalLessons > 0 ? completedLessons / totalLessons : 0.0;
 
@@ -203,10 +194,7 @@ class _LessonListViewState extends State<LessonListView> {
               ),
               Text(
                 'Lessons',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -223,10 +211,7 @@ class _LessonListViewState extends State<LessonListView> {
               ),
               Text(
                 'Locked',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
           ),
@@ -239,8 +224,8 @@ class _LessonListViewState extends State<LessonListView> {
     if (widget.user.isStaff || widget.user.isAdmin) {
       return FloatingActionButton(
         onPressed: () => _navigateToAddLesson(),
-        child: const Icon(Icons.add),
         backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.add),
       );
     }
     return null;
@@ -322,19 +307,25 @@ class _LessonListViewState extends State<LessonListView> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: lesson.isCompleted ? Colors.green.shade50 : Colors.blue.shade50,
+                          color: lesson.isCompleted
+                              ? Colors.green.shade50
+                              : Colors.blue.shade50,
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
                         child: lesson.isCompleted
-                            ? const Icon(Icons.check, size: 20, color: Colors.green)
+                            ? const Icon(
+                                Icons.check,
+                                size: 20,
+                                color: Colors.green,
+                              )
                             : Text(
-                          lesson.order.toString(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
-                          ),
-                        ),
+                                lesson.order.toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade700,
+                                ),
+                              ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -372,7 +363,8 @@ class _LessonListViewState extends State<LessonListView> {
                           ),
                         ),
 
-                        if (lesson.videoUrl != null || lesson.pdfUrl != null) ...[
+                        if (lesson.videoUrl != null ||
+                            lesson.pdfUrl != null) ...[
                           const SizedBox(height: 24),
                           const Text(
                             'Attachments',
@@ -412,11 +404,15 @@ class _LessonListViewState extends State<LessonListView> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
-                    border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                    border: Border(
+                      top: BorderSide(color: Colors.grey.shade200),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      if (widget.user.isStudent && !lesson.isCompleted && !lesson.isLocked)
+                      if (widget.user.isStudent &&
+                          !lesson.isCompleted &&
+                          !lesson.isLocked)
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -469,7 +465,13 @@ class _LessonListViewState extends State<LessonListView> {
     );
   }
 
-  Widget _buildAttachmentCard(BuildContext context, String title, IconData icon, Color color, String url) {
+  Widget _buildAttachmentCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    String url,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -504,10 +506,8 @@ class _LessonListViewState extends State<LessonListView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditLessonView(
-          user: widget.user,
-          courseId: widget.courseId,
-        ),
+        builder: (context) =>
+            AddEditLessonView(user: widget.user, courseId: widget.courseId),
       ),
     ).then((_) {
       context.read<LessonViewModel>().loadLessonsByCourse(widget.courseId);
@@ -542,10 +542,7 @@ class _LessonListViewState extends State<LessonListView> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

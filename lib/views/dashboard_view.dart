@@ -6,13 +6,14 @@ import '../widgets/dashboard_header.dart';
 import '../widgets/dashboard_footer.dart';
 import '../widgets/progress_card.dart';
 import '../widgets/analytics_chart.dart';
+import '../views/feature2/study_materials_assignments_screen.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final vm = Provider.of<DashboardViewModel>(context);
+    final vm = context.watch<DashboardViewModel>();
 
     return Scaffold(
       body: Column(
@@ -64,7 +65,6 @@ class DashboardView extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
 
-                        /// Chart
                         Container(
                           height: 220,
                           padding: const EdgeInsets.all(16),
@@ -105,8 +105,24 @@ class DashboardView extends StatelessWidget {
                   ),
           ),
 
-          /// ===== FOOTER =====
-          const DashboardFooter(currentIndex: 0),
+          /// ===== FOOTER (FIXED) =====
+          DashboardFooter(
+            currentIndex: 0,
+            onDashboardTap: () {
+              // Already on dashboard
+            },
+            onLessonsTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const StudyMaterialsAssignmentsScreen(
+                    courseId: 'CS101',
+                    userRole: 'lecturer',
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

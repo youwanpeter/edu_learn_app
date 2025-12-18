@@ -16,10 +16,10 @@ class CourseDetailView extends StatefulWidget {
   final User user;
 
   const CourseDetailView({
-    Key? key,
+    super.key,
     required this.courseId,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   _CourseDetailViewState createState() => _CourseDetailViewState();
@@ -54,7 +54,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     final course = courseViewModel.selectedCourse;
     if (course == null) return [];
 
-    final canEdit = widget.user.isAdmin ||
+    final canEdit =
+        widget.user.isAdmin ||
         (widget.user.isStaff && widget.user.id == course.instructorId);
 
     if (canEdit) {
@@ -69,11 +70,12 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     return [];
   }
 
-  Widget _buildBody(CourseViewModel courseViewModel, LessonViewModel lessonViewModel) {
+  Widget _buildBody(
+    CourseViewModel courseViewModel,
+    LessonViewModel lessonViewModel,
+  ) {
     if (courseViewModel.isLoading || lessonViewModel.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     final course = courseViewModel.selectedCourse;
@@ -142,7 +144,10 @@ class _CourseDetailViewState extends State<CourseDetailView> {
               ),
               if (widget.user.isStudent)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getProgressColor(course.progress).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -166,7 +171,10 @@ class _CourseDetailViewState extends State<CourseDetailView> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(20),
@@ -254,25 +262,24 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     );
   }
 
-  Widget _buildStatItem(IconData icon, String value, String label, Color color) {
+  Widget _buildStatItem(
+    IconData icon,
+    String value,
+    String label,
+    Color color,
+  ) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
         ),
       ],
     );
@@ -287,10 +294,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
           children: [
             const Text(
               'Course Lessons',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             if (lessonViewModel.lessons.isNotEmpty)
               TextButton(
@@ -327,7 +331,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => lessonViewModel.loadLessonsByCourse(course.id),
+                  onPressed: () =>
+                      lessonViewModel.loadLessonsByCourse(course.id),
                   child: const Text('Retry'),
                 ),
               ],
@@ -343,18 +348,11 @@ class _CourseDetailViewState extends State<CourseDetailView> {
             ),
             child: Column(
               children: [
-                Icon(
-                  Icons.menu_book,
-                  size: 50,
-                  color: Colors.grey.shade400,
-                ),
+                Icon(Icons.menu_book, size: 50, color: Colors.grey.shade400),
                 const SizedBox(height: 16),
                 const Text(
                   'No lessons yet',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -396,7 +394,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                         : null,
                   ),
                 );
-              }).toList(),
+              }),
 
               if (lessonViewModel.lessons.length > 3)
                 Center(
@@ -415,7 +413,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
   }
 
   Widget _buildEnrollmentSection(Course course) {
-    final isEnrolled = widget.user.isStudent &&
+    final isEnrolled =
+        widget.user.isStudent &&
         course.enrolledStudents.contains(widget.user.id);
 
     if (!widget.user.isStudent) return const SizedBox();
@@ -452,7 +451,9 @@ class _CourseDetailViewState extends State<CourseDetailView> {
                       ? 'You are enrolled in this course'
                       : 'You are not enrolled in this course',
                   style: TextStyle(
-                    color: isEnrolled ? Colors.green.shade700 : Colors.orange.shade700,
+                    color: isEnrolled
+                        ? Colors.green.shade700
+                        : Colors.orange.shade700,
                   ),
                 ),
               ),
@@ -472,14 +473,15 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     final course = courseViewModel.selectedCourse;
     if (course == null) return null;
 
-    final canAddLesson = widget.user.isAdmin ||
+    final canAddLesson =
+        widget.user.isAdmin ||
         (widget.user.isStaff && widget.user.id == course.instructorId);
 
     if (canAddLesson) {
       return FloatingActionButton(
         onPressed: () => _navigateToAddLesson(course.id),
-        child: const Icon(Icons.add),
         backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.add),
       );
     }
     return null;
@@ -495,10 +497,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditCourseView(
-          user: widget.user,
-          course: course,
-        ),
+        builder: (context) =>
+            AddEditCourseView(user: widget.user, course: course),
       ),
     ).then((_) {
       context.read<CourseViewModel>().selectCourse(course.id);
@@ -509,10 +509,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LessonListView(
-          courseId: courseId,
-          user: widget.user,
-        ),
+        builder: (context) =>
+            LessonListView(courseId: courseId, user: widget.user),
       ),
     );
   }
@@ -524,7 +522,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => LessonDetailSheet(lesson: lesson, user: widget.user),
+      builder: (context) =>
+          LessonDetailSheet(lesson: lesson, user: widget.user),
     );
   }
 
@@ -545,10 +544,8 @@ class _CourseDetailViewState extends State<CourseDetailView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditLessonView(
-          user: widget.user,
-          courseId: courseId,
-        ),
+        builder: (context) =>
+            AddEditLessonView(user: widget.user, courseId: courseId),
       ),
     ).then((_) {
       context.read<LessonViewModel>().loadLessonsByCourse(courseId);
@@ -560,7 +557,9 @@ class _CourseDetailViewState extends State<CourseDetailView> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Lesson'),
-        content: const Text('Are you sure you want to delete this lesson? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this lesson? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -568,10 +567,7 @@ class _CourseDetailViewState extends State<CourseDetailView> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -618,7 +614,10 @@ class _CourseDetailViewState extends State<CourseDetailView> {
 
   void _enrollInCourse(BuildContext context, String courseId) async {
     try {
-      await context.read<CourseViewModel>().enrollStudent(courseId, widget.user.id);
+      await context.read<CourseViewModel>().enrollStudent(
+        courseId,
+        widget.user.id,
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Successfully enrolled in course!'),
@@ -641,10 +640,10 @@ class LessonDetailSheet extends StatelessWidget {
   final User user;
 
   const LessonDetailSheet({
-    Key? key,
+    super.key,
     required this.lesson,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -679,19 +678,25 @@ class LessonDetailSheet extends StatelessWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: lesson.isCompleted ? Colors.green.shade50 : Colors.blue.shade50,
+                        color: lesson.isCompleted
+                            ? Colors.green.shade50
+                            : Colors.blue.shade50,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: lesson.isCompleted
-                          ? const Icon(Icons.check, size: 20, color: Colors.green)
+                          ? const Icon(
+                              Icons.check,
+                              size: 20,
+                              color: Colors.green,
+                            )
                           : Text(
-                        lesson.order.toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade700,
-                        ),
-                      ),
+                              lesson.order.toString(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -773,7 +778,9 @@ class LessonDetailSheet extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    if (user.isStudent && !lesson.isCompleted && !lesson.isLocked)
+                    if (user.isStudent &&
+                        !lesson.isCompleted &&
+                        !lesson.isLocked)
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -782,7 +789,9 @@ class LessonDetailSheet extends StatelessWidget {
                           ),
                           onPressed: () {
                             Navigator.pop(context);
-                            context.read<LessonViewModel>().markAsCompleted(lesson.id);
+                            context.read<LessonViewModel>().markAsCompleted(
+                              lesson.id,
+                            );
                           },
                           child: const Text(
                             'Mark as Complete',
@@ -834,7 +843,13 @@ class LessonDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildAttachmentCard(BuildContext context, String title, IconData icon, Color color, String url) {
+  Widget _buildAttachmentCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    String url,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(

@@ -31,12 +31,7 @@ class ResourceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(w * 0.04),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-          ),
-        ],
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
       ),
       child: Row(
         children: [
@@ -44,8 +39,8 @@ class ResourceCard extends StatelessWidget {
             type == 'pdf'
                 ? Icons.picture_as_pdf
                 : type == 'doc'
-                    ? Icons.description
-                    : Icons.play_circle,
+                ? Icons.description
+                : Icons.play_circle,
             size: w * 0.08,
             color: Colors.blueAccent,
           ),

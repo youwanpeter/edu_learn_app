@@ -9,13 +9,13 @@ class CourseItem extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const CourseItem({
-    Key? key,
+    super.key,
     required this.course,
     required this.userRole,
     required this.onTap,
     this.onEdit,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,10 @@ class CourseItem extends StatelessWidget {
                     right: 16,
                     top: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(12),
@@ -78,7 +81,10 @@ class CourseItem extends StatelessWidget {
                     left: 16,
                     bottom: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -119,9 +125,14 @@ class CourseItem extends StatelessWidget {
                       ),
                       if (userRole == 'student')
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: _getProgressColor(course.progress).withOpacity(0.1),
+                            color: _getProgressColor(
+                              course.progress,
+                            ).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -140,10 +151,7 @@ class CourseItem extends StatelessWidget {
 
                   Text(
                     'By ${course.instructorName}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
 
                   const SizedBox(height: 12),
@@ -163,9 +171,15 @@ class CourseItem extends StatelessWidget {
 
                   Row(
                     children: [
-                      _buildInfoItem(Icons.menu_book, '${course.totalLessons} Lessons'),
+                      _buildInfoItem(
+                        Icons.menu_book,
+                        '${course.totalLessons} Lessons',
+                      ),
                       const SizedBox(width: 12),
-                      _buildInfoItem(Icons.access_time, _formatDate(course.createdAt)),
+                      _buildInfoItem(
+                        Icons.access_time,
+                        _formatDate(course.createdAt),
+                      ),
                       const Spacer(),
 
                       if (userRole == 'student')
@@ -182,7 +196,8 @@ class CourseItem extends StatelessWidget {
                           ),
                         ),
 
-                      if ((userRole == 'staff' || userRole == 'admin') && (onEdit != null || onDelete != null))
+                      if ((userRole == 'staff' || userRole == 'admin') &&
+                          (onEdit != null || onDelete != null))
                         Row(
                           children: [
                             if (onEdit != null)
@@ -215,10 +230,7 @@ class CourseItem extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(text, style: const TextStyle(fontSize: 12, color: Colors.grey)),
       ],
     );
   }

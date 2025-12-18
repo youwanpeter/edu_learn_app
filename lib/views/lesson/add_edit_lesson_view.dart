@@ -10,11 +10,11 @@ class AddEditLessonView extends StatefulWidget {
   final Lesson? lesson;
 
   const AddEditLessonView({
-    Key? key,
+    super.key,
     required this.user,
     required this.courseId,
     this.lesson,
-  }) : super(key: key);
+  });
 
   @override
   _AddEditLessonViewState createState() => _AddEditLessonViewState();
@@ -33,10 +33,18 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.lesson?.title ?? '');
-    _contentController = TextEditingController(text: widget.lesson?.content ?? '');
-    _videoUrlController = TextEditingController(text: widget.lesson?.videoUrl ?? '');
-    _pdfUrlController = TextEditingController(text: widget.lesson?.pdfUrl ?? '');
-    _orderController = TextEditingController(text: widget.lesson?.order.toString() ?? '1');
+    _contentController = TextEditingController(
+      text: widget.lesson?.content ?? '',
+    );
+    _videoUrlController = TextEditingController(
+      text: widget.lesson?.videoUrl ?? '',
+    );
+    _pdfUrlController = TextEditingController(
+      text: widget.lesson?.pdfUrl ?? '',
+    );
+    _orderController = TextEditingController(
+      text: widget.lesson?.order.toString() ?? '1',
+    );
     _isLocked = widget.lesson?.isLocked ?? false;
   }
 
@@ -80,10 +88,7 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
           children: [
             const Text(
               'Lesson Details',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -249,26 +254,20 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
                 children: [
                   const Text(
                     'Lesson Access',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                   ),
                   Text(
                     _isLocked
                         ? 'Students cannot access this lesson'
                         : 'Students can access this lesson',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                 ],
               ),
             ),
             Switch(
               value: _isLocked,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
               inactiveThumbColor: Colors.green,
               onChanged: (value) {
                 setState(() {
@@ -299,17 +298,17 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
             onPressed: viewModel.isLoading ? null : _submitForm,
             child: viewModel.isLoading
                 ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
                 : Text(
-              widget.lesson != null ? 'Update Lesson' : 'Create Lesson',
-              style: const TextStyle(fontSize: 16),
-            ),
+                    widget.lesson != null ? 'Update Lesson' : 'Create Lesson',
+                    style: const TextStyle(fontSize: 16),
+                  ),
           ),
         );
       },
@@ -360,8 +359,12 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
         final updatedLesson = widget.lesson!.copyWith(
           title: _titleController.text,
           content: _contentController.text,
-          videoUrl: _videoUrlController.text.isNotEmpty ? _videoUrlController.text : null,
-          pdfUrl: _pdfUrlController.text.isNotEmpty ? _pdfUrlController.text : null,
+          videoUrl: _videoUrlController.text.isNotEmpty
+              ? _videoUrlController.text
+              : null,
+          pdfUrl: _pdfUrlController.text.isNotEmpty
+              ? _pdfUrlController.text
+              : null,
           order: order,
           isLocked: _isLocked,
         );
@@ -378,8 +381,12 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
           courseId: widget.courseId,
           title: _titleController.text,
           content: _contentController.text,
-          videoUrl: _videoUrlController.text.isNotEmpty ? _videoUrlController.text : null,
-          pdfUrl: _pdfUrlController.text.isNotEmpty ? _pdfUrlController.text : null,
+          videoUrl: _videoUrlController.text.isNotEmpty
+              ? _videoUrlController.text
+              : null,
+          pdfUrl: _pdfUrlController.text.isNotEmpty
+              ? _pdfUrlController.text
+              : null,
           order: order,
           isLocked: _isLocked,
           createdAt: DateTime.now(),
@@ -406,16 +413,16 @@ class _AddEditLessonViewState extends State<AddEditLessonView> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Lesson'),
-        content: const Text('Are you sure you want to delete this lesson? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to delete this lesson? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Delete Lesson'),
           ),

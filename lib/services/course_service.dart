@@ -2,7 +2,7 @@ import '../models/course.dart';
 
 class CourseService {
   // Mock database
-  List<Course> _courses = [
+  final List<Course> _courses = [
     Course(
       id: '1',
       title: 'Flutter Development',
@@ -38,12 +38,16 @@ class CourseService {
 
   Future<List<Course>> fetchCoursesByInstructor(String instructorId) async {
     await Future.delayed(const Duration(seconds: 1));
-    return _courses.where((course) => course.instructorId == instructorId).toList();
+    return _courses
+        .where((course) => course.instructorId == instructorId)
+        .toList();
   }
 
   Future<List<Course>> fetchEnrolledCourses(String studentId) async {
     await Future.delayed(const Duration(seconds: 1));
-    return _courses.where((course) => course.enrolledStudents.contains(studentId)).toList();
+    return _courses
+        .where((course) => course.enrolledStudents.contains(studentId))
+        .toList();
   }
 
   Future<Course?> fetchCourseById(String courseId) async {
@@ -62,7 +66,9 @@ class CourseService {
 
   Future<void> updateCourse(Course updatedCourse) async {
     await Future.delayed(const Duration(seconds: 1));
-    final index = _courses.indexWhere((course) => course.id == updatedCourse.id);
+    final index = _courses.indexWhere(
+      (course) => course.id == updatedCourse.id,
+    );
     if (index != -1) {
       _courses[index] = updatedCourse;
     }
